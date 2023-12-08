@@ -12,4 +12,6 @@ public class MessageDTO {
     private String content;
 
     private Date time;
+
+    private String type;
 }

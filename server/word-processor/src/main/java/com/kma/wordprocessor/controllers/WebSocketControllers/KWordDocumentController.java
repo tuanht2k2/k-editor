@@ -10,7 +10,9 @@ import org.springframework.web.bind.annotation.CrossOrigin;
 @Controller
 @CrossOrigin(origins = "*")
 public class KWordDocumentController {
-    @SendTo("document/k-word/{documentId}")
+
+    @MessageMapping("/")
+    @SendTo("documents/k-word/{documentId}")
     JSONObject action (@Payload JSONObject actionObj){
         return actionObj;
     }
