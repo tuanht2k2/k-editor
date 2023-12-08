@@ -1,6 +1,6 @@
 package com.kma.wordprocessor.controllers;
 
-import com.kma.wordprocessor.dto.TxtFileUpdateDTO;
+import com.kma.wordprocessor.dto.KWord.DocumentActionUpdateDTO;
 import com.kma.wordprocessor.models.File;
 import com.kma.wordprocessor.repositories.FileRepository;
 import com.kma.wordprocessor.services.FileService;
@@ -8,8 +8,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.Optional;
 
 @CrossOrigin(origins = "*")
 @RestController
@@ -37,9 +35,20 @@ public class FileController {
 
     // with txt file
     @PostMapping(path = "/txt/{fileId}/update")
-    public ResponseEntity<String> updateTxtFile (@PathVariable String fileId,@RequestBody TxtFileUpdateDTO txtFileUpdateDTO) {
-       fileService.updateTxtFile(fileId, txtFileUpdateDTO);
+    public ResponseEntity<String> updateTxtFile (@PathVariable String fileId,@RequestBody DocumentActionUpdateDTO txtFileUpdateDTO) {
+       fileService.updateTxtFile(txtFileUpdateDTO);
        return new ResponseEntity<String>("OK", HttpStatus.OK);
     }
 
+    @PatchMapping(path = "/{fileId}/new-name={newName}")
+    public ResponseEntity<String> editFileName(@PathVariable String fileId, @PathVariable String newName) {
+        String editStt = fileService.editFileName(fileId, newName);
+        return editStt.equals("OK") ? new ResponseEntity<String>("OK", HttpStatus.OK) : new ResponseEntity<String>("FAILED", HttpStatus.NOT_FOUND);
+    }
+
+    @DeleteMapping(path = "{fileId}/delete")
+    public ResponseEntity<String> deleteFileById(@PathVariable String fileId) {
+        fileService.deleteFileById(fileId);
+        return new ResponseEntity<String>("OK", HttpStatus.OK);
+    }
 }

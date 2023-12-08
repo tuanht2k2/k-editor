@@ -124,22 +124,6 @@ function SignIn() {
     handleSetFormData(fieldName, "helperText", "");
   };
 
-  // get user data from db and dispatch it
-  // const handleGetUserDataFromDB = (jwtToken, username) => {
-  //   const config = {
-  //     headers: {
-  //       Authorization: `Bearer ${jwtToken}`,
-  //     },
-  //   };
-  //   instance
-  //     .get(`/users/username=${username}`, config)
-  //     .then((res) => {
-  //       const user = res.data;
-  //       dispatch(login(user));
-  //     })
-  //     .catch((err) => {});
-  // };
-
   const handleLogin = async () => {
     const isValid = handleValidateForm();
 
@@ -161,9 +145,7 @@ function SignIn() {
         const jwtToken = res.data.token;
         localStorage.setItem("jwtToken", jwtToken);
         localStorage.setItem("username", user.username);
-        router.push("/k-sheet/home");
-
-        // handleGetUserDataFromDB(jwtToken, user.username);
+        router.push("/file-explore/home");
       })
       .catch((err) => {
         setLoginBtnStt((prev) => ({ ...prev, isSpinning: false }));
@@ -210,6 +192,9 @@ function SignIn() {
                     }}
                     onBlur={(e) => {
                       handleBlurInput(field, e.target.value);
+                    }}
+                    onKeyDown={(e) => {
+                      e.key == "Enter" && handleLogin();
                     }}
                   />
                 </Grid>

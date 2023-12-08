@@ -1,7 +1,8 @@
-package com.kma.wordprocessor.controllers;
+package com.kma.wordprocessor.controllers.WebSocketControllers;
 
-import com.kma.wordprocessor.dto.MessageDTO;
-import com.kma.wordprocessor.models.UserInfo;
+import com.kma.wordprocessor.dto.Messenger.GlobalMessengerRepositoryDTO;
+import com.kma.wordprocessor.dto.Messenger.MessageDTO;
+import com.kma.wordprocessor.dto.Messenger.MessengerDTO;
 import org.springframework.messaging.handler.annotation.DestinationVariable;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.Payload;
@@ -14,16 +15,14 @@ import java.util.List;
 
 @Controller
 @CrossOrigin(origins = "*")
-public class WebSocketDocumentMessageController {
-    List<MessageDTO> messages = new ArrayList<MessageDTO>();
+public class DocumentMessageController {
 
-    List<UserInfo> member = new ArrayList<UserInfo>();
+    GlobalMessengerRepositoryDTO globalMessengerRepositoryDTO = new GlobalMessengerRepositoryDTO(new ArrayList<MessengerDTO>());
 
     @MessageMapping("/documents/{documentId}/messenger")
     @SendTo("/documents/{documentId}/messenger")
-    public List<MessageDTO> sendMessage (@Payload MessageDTO message,@DestinationVariable String documentId) {
-        messages.add(message);
-        return messages;
+    public MessengerDTO sendMessage (@Payload MessageDTO message, @DestinationVariable String documentId) {
+        return globalMessengerRepositoryDTO.updateMessengerRepo(documentId, message);
     }
 }
 

@@ -1,8 +1,8 @@
 package com.kma.wordprocessor.services;
 
-import com.kma.wordprocessor.dto.TxtFileUpdateDTO;
+import com.kma.wordprocessor.dto.KSheet.SheetUpdateDTO;
+import com.kma.wordprocessor.dto.KWord.DocumentActionUpdateDTO;
 import com.kma.wordprocessor.models.File;
-import com.kma.wordprocessor.models.ResponseObj;
 import com.kma.wordprocessor.models.UserInfo;
 import com.kma.wordprocessor.repositories.FileRepository;
 import com.kma.wordprocessor.repositories.UserRepository;
@@ -14,7 +14,6 @@ import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -66,16 +65,10 @@ public class FileService {
     }
 
     public void deleteFileById(String fileId){
-
         Optional<File> optionalFile = fileRepository.findById(fileId);
         if (optionalFile.isPresent()){
             File file = optionalFile.get();
             fileRepository.deleteById(fileId);
-
-            // delete file in users document
-            Query query = new Query(Criteria.where("_id").is(file.getOwnerId()));
-            Update update = new Update().pull("files", file.get_id());
-            mongoTemplate.updateFirst(query, update, UserInfo.class);
         }
     }
 
@@ -92,25 +85,47 @@ public class FileService {
         mongoTemplate.remove(query, "files"); // delete in files document
     }
 
-    public void updateTxtFile (String fileId,TxtFileUpdateDTO newTxtFileUpdateDTO) {
-        Optional<File> optionalFile = fileRepository.findById(fileId);
+    public void updateTxtFile (DocumentActionUpdateDTO txtDocumentActionUpdateDTO) {
+        Optional<File> optionalFile = fileRepository.findById(txtDocumentActionUpdateDTO.getDocumentId());
         if (!optionalFile.isPresent()) return;
         File file = optionalFile.get();
-        file.setData(newTxtFileUpdateDTO.getData());
+        file.setData(txtDocumentActionUpdateDTO.getData());
 
-        List<TxtFileUpdateDTO> updateHistory = file.getUpdateHistory() == null ? new ArrayList<TxtFileUpdateDTO>() : file.getUpdateHistory();
+        List<DocumentActionUpdateDTO> updateHistory = file.getUpdateHistory() == null ? new ArrayList<DocumentActionUpdateDTO>() : file.getUpdateHistory();
         if (updateHistory.isEmpty()) {
-            updateHistory.add(newTxtFileUpdateDTO);
+            updateHistory.add(txtDocumentActionUpdateDTO);
         } else {
-            TxtFileUpdateDTO lastUpdate = updateHistory.get(updateHistory.size() - 1);
-            if (lastUpdate.getData().equals(newTxtFileUpdateDTO.getData())) {return;}
-            if (lastUpdate.getUserId().equals(newTxtFileUpdateDTO.getUserId())) {
-                updateHistory.set(updateHistory.size() - 1, newTxtFileUpdateDTO);
+            DocumentActionUpdateDTO lastUpdate = updateHistory.get(updateHistory.size() - 1);
+            if (lastUpdate.getData().equals(txtDocumentActionUpdateDTO.getData())) {return;}
+            if (lastUpdate.getUserId().equals(txtDocumentActionUpdateDTO.getUserId())) {
+                updateHistory.set(updateHistory.size() - 1, txtDocumentActionUpdateDTO);
             } else {
-                updateHistory.add(newTxtFileUpdateDTO);
+                updateHistory.add(txtDocumentActionUpdateDTO);
             }
         }
         file.setUpdateHistory(updateHistory);
         fileRepository.save(file);
+    }
+
+    public void updateSheetFile(SheetUpdateDTO sheetUpdateDTO) {
+        Optional<File> optionalSheet = fileRepository.findById(sheetUpdateDTO.getSheetId());
+        if (!optionalSheet.isPresent()) return;
+
+        File sheet = optionalSheet.get();
+        List<SheetUpdateDTO> sheetUpdateHistory = sheet.getSheetUpdateHistory() == null ? new ArrayList<SheetUpdateDTO>() : sheet.getSheetUpdateHistory();
+        sheetUpdateHistory.add(sheetUpdateDTO);
+        sheet.setSheetUpdateHistory(sheetUpdateHistory);
+        fileRepository.save(sheet);
+    }
+
+    public String editFileName(String fileId, String newName) {
+        Optional<File> optionalFile = fileRepository.findById(fileId);
+        if (optionalFile.isPresent()) {
+            File file = optionalFile.get();
+            file.setName(newName);
+            fileRepository.save(file);
+            return "OK";
+        }
+        return "FAILED";
     }
 }

@@ -32,9 +32,9 @@ import ListItemText from "@mui/material/ListItemText";
 import { Button, Grid, Menu, MenuItem } from "@mui/material";
 import {
   DriveFileMoveOutlined,
+  GridOnOutlined,
   GroupOutlined,
   HomeOutlined,
-  NewspaperOutlined,
   TextSnippetOutlined,
 } from "@mui/icons-material";
 import { usePathname, useRouter } from "next/navigation";
@@ -115,7 +115,7 @@ const navbarMenu = [
     type: "link",
     title: "Tệp của tôi",
     icon: <DriveFileMoveOutlined />,
-    href: "/myfile",
+    href: "/file-explore/home",
   },
   { type: "devider" },
   {
@@ -133,7 +133,7 @@ const navbarMenu = [
   {
     type: "link",
     title: "K-Sheet",
-    icon: <NewspaperOutlined />,
+    icon: <GridOnOutlined />,
     href: "/k-sheet/home",
   },
   { type: "devider" },
@@ -361,9 +361,10 @@ function RootLayout({ children }) {
           </IconButton>
         </DrawerHeader>
         <Divider />
+        {/* navlink */}
         <List>
-          {navbarMenu.map((item, index) =>
-            item.type === "link" ? (
+          {navbarMenu.map((item, index) => {
+            return item.type === "link" ? (
               <Link
                 key={`navbar-item-${index}`}
                 href={item.href}
@@ -410,8 +411,8 @@ function RootLayout({ children }) {
               </Link>
             ) : (
               <Divider key={`navbar-item-${index}`} />
-            )
-          )}
+            );
+          })}
         </List>
       </Drawer>
 

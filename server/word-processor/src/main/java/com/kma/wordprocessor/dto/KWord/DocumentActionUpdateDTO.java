@@ -5,7 +5,7 @@ import lombok.Data;
 import java.util.Date;
 
 @Data
-public class DocumentActionUpdate {
+public class DocumentActionUpdateDTO {
     private String documentId;
 
     private String userId;

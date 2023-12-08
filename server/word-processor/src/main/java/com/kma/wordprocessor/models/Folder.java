@@ -23,14 +23,14 @@ public class Folder {
 
     private String parentId;
 
-    private Date createAt;
+    private Date createdAt;
 
     private List<String> files;
 
-    public Folder(String ownerId, String name, String parentId, Date createAt) {
+    public Folder(String ownerId, String name, String parentId, Date createdAt) {
         this.ownerId = ownerId;
         this.name = name;
         this.parentId = parentId;
-        this.createAt = createAt;
+        this.createdAt = createdAt;
     }
 }

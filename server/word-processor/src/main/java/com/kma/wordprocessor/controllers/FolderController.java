@@ -35,7 +35,7 @@ public class FolderController {
         return createFolderStatus.equals("OK") ? new ResponseEntity<String>("Create folder successfully!", HttpStatus.OK) : new ResponseEntity<String>("Create folder failure!", HttpStatus.BAD_REQUEST);
     }
 
-    @DeleteMapping(path = "/delete/{folderId}")
+    @DeleteMapping(path = "/{folderId}/delete")
     public ResponseEntity<String> deleteFolder(@PathVariable String folderId) {
         String deleteStatus = folderService.deleteFolder(folderId);
         return deleteStatus.equals("OK") ? new ResponseEntity<String>("Delete folder successfully!", HttpStatus.OK) : new ResponseEntity<String>("Delete folder failure!", HttpStatus.NOT_FOUND);

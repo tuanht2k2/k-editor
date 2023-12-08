@@ -1,7 +1,10 @@
-import { useState } from "react";
+import "regenerator-runtime/runtime";
+
+import { Fragment, useState } from "react";
 
 import { Alert, Button, Snackbar, TextField } from "@mui/material";
 import {
+  BackspaceOutlined,
   ContentCopyOutlined,
   MicOutlined,
   RemoveOutlined,
@@ -20,9 +23,18 @@ import { useRef } from "react";
 import { over } from "stompjs";
 import SockJS from "sockjs-client";
 
+import SpeechRecognition, {
+  useSpeechRecognition,
+} from "react-speech-recognition";
+import RegularTippy from "./RegularTippy";
+import { instance } from "../utils/axios";
+import getApiConfig from "../utils/getApiConfig";
+import CustomSkeleton from "./CustomSkeleton";
+
 function TemporaryMessenger({ document, hideWindowFn }) {
   const [messageContent, setMessageContent] = useState("");
-  const [messages, setMessages] = useState([]);
+  const [messenger, setMessages] = useState([]);
+  const [isMessengerLoaded, setIsMessengerLoaded] = useState(false);
 
   const messengerRef = useRef(null);
 
@@ -39,6 +51,7 @@ function TemporaryMessenger({ document, hideWindowFn }) {
   // config websocket
   const [stompClient, setStompClient] = useState(null);
 
+  // webSocket config
   useEffect(() => {
     const socket = new SockJS("http://localhost:8080/ws");
 
@@ -47,9 +60,22 @@ function TemporaryMessenger({ document, hideWindowFn }) {
       {},
       () => {
         client.subscribe(`/documents/${document._id}/messenger`, (payload) => {
-          const messagesRes = JSON.parse(payload.body);
-          setMessages([...messagesRes]);
+          const messenger = JSON.parse(payload.body);
+          setMessages(messenger);
         });
+
+        // send notification to server: client connected
+        const notificationMessage = {
+          author: user,
+          content: "Client join room!",
+          time: new Date(),
+          type: "notification",
+        };
+        client.send(
+          `/app/documents/${document._id}/messenger`,
+          {},
+          JSON.stringify(notificationMessage)
+        );
       },
       () => {}
     );
@@ -58,7 +84,7 @@ function TemporaryMessenger({ document, hideWindowFn }) {
     return () => {
       client.connected && client.disconnect();
     };
-  }, [messages]);
+  }, [document]);
 
   useEffect(() => {
     if (messengerRef.current) {
@@ -70,7 +96,20 @@ function TemporaryMessenger({ document, hideWindowFn }) {
     return () => {};
   });
 
-  const handleSendMessage = (messageObj) => {
+  const handleSendMessage = () => {
+    if (!stompClient) return;
+
+    const messageObj = {
+      author: user,
+      content: messageContent,
+      time: new Date(),
+      type: "normal",
+    };
+
+    setMessageContent("");
+    messageTextFieldRef.current?.focus();
+
+    console.log(`/app/documents/${document._id}/messenger`);
     stompClient.send(
       `/app/documents/${document._id}/messenger`,
       {},
@@ -78,16 +117,20 @@ function TemporaryMessenger({ document, hideWindowFn }) {
     );
   };
 
+  // speech to text
+  const {
+    transcript,
+    listening,
+    resetTranscript,
+    browserSupportsSpeechRecognition,
+  } = useSpeechRecognition();
+
   return (
     <div className=" border-slate-50 rounded-md">
       <div className="flex items-center justify-between pb-3">
         <div className="flex items-center font-semibold text-lg">
-          {`Cuộc họp tạm thời`}
           <span className="font-semibold text-sm italic text-slate-500">
-            <TextSnippetOutlined
-              className="ml-2 text-sky-500"
-              fontSize="small"
-            />
+            <TextSnippetOutlined className="text-sky-500" fontSize="small" />
             {`${"text-tuan-1.txt"}`}
           </span>
         </div>
@@ -99,87 +142,96 @@ function TemporaryMessenger({ document, hideWindowFn }) {
           <RemoveOutlined className="text-red-600" fontSize="small" />
         </button>
       </div>
+
+      {/* messenger */}
       <div
-        className={`max-h-[calc(100vh-300px)] ${
-          messages.length > 0 &&
-          "border-b-2  border-t-2 border-slate-400 overflow-y-scroll "
+        className={`max-h-[calc(100vh-350px)] ${
+          messenger.messages?.length > 0 &&
+          "border-b-2  border-t-2 border-l-2 border-slate-200 rounded-md overflow-y-scroll"
         }`}
         ref={messengerRef}
       >
-        {user && messages.length > 0 ? (
+        {messenger.messages?.length > 0 ? (
           <ul className="pl-4 pr-4 pb-4 flex flex-col">
-            {messages.map((message, index) => (
-              <li
-                key={`message ${index}`}
-                className={`mt-4 flex items-start ${
-                  user._id == message.author._id && "self-end flex-row-reverse"
-                }`}
-              >
-                <div
-                  className={`flex flex-col border-2 border-slate-200 rounded-2xl p-1 ${
-                    user._id == message.author._id ? "items-end" : "items-start"
-                  }`}
-                >
-                  <span className="font-semibold text-xs text-slate-500">
-                    {message.author.username}
-                  </span>
-                  <img
-                    className="object-cover h-6"
-                    src={
-                      message.author.avtImage
-                        ? message.author.avtImage
-                        : "/assets/images/profile_image.png"
-                    }
-                  />
-                </div>
-                <div
-                  className={`ml-2 mr-2 border-2 border-slate-100 h-full rounded-2xl p-2 ${
-                    user._id == message.author._id && "bg-slate-50"
-                  }`}
-                >
-                  <div className="">{message.content}</div>
-                  <div className="text-xs italic text-slate-400">
-                    {dateFormat(message.time)}
-                  </div>
-                </div>
-                <button
-                  className="p-1 rounded-full duration-150 flex justify-center align-center hover:bg-slate-200 hover:[&>*]:text-sky-400 self-center"
-                  title="Sao chép vào bộ nhớ tạm"
-                  onClick={() => {
-                    navigator.clipboard.writeText(message.content);
-                    setIsCopySnackBarVisible(true);
-                  }}
-                >
-                  <ContentCopyOutlined
-                    className="text-sky-600"
-                    fontSize="small"
-                  />
-                </button>
-                {/* SnackBar */}
-                <Snackbar
-                  open={isCopySnackBarVisible}
-                  autoHideDuration={3000}
-                  onClose={() => {
-                    setIsCopySnackBarVisible(false);
-                  }}
-                  anchorOrigin={{ vertical: "top", horizontal: "right" }}
-                >
-                  <Alert
-                    severity="success"
-                    sx={{ width: "100%" }}
-                    onClose={() => {
-                      setIsCopySnackBarVisible(false);
-                    }}
+            {messenger.messages.map(
+              (message, index) =>
+                message.type === "normal" && (
+                  <li
+                    key={`message ${index}`}
+                    className={`mt-4 flex items-start ${
+                      user._id == message.author._id &&
+                      "self-end flex-row-reverse"
+                    }`}
                   >
-                    Đã sao chép nội dung vào bộ nhớ tạm
-                  </Alert>
-                </Snackbar>
-              </li>
-            ))}
+                    <div
+                      className={`flex flex-col border-2 border-slate-200 rounded-2xl p-1 ${
+                        user._id == message.author._id
+                          ? "items-end"
+                          : "items-start"
+                      }`}
+                    >
+                      <span className="font-semibold text-xs text-slate-500">
+                        {message.author.username}
+                      </span>
+                      <img
+                        className="object-cover h-6"
+                        src={
+                          message.author.avtImage
+                            ? message.author.avtImage
+                            : "/assets/images/profile_image.png"
+                        }
+                      />
+                    </div>
+                    <div
+                      className={`ml-2 mr-2 border-2 border-slate-100 h-full rounded-2xl p-2 ${
+                        user._id == message.author._id && "bg-slate-50"
+                      }`}
+                    >
+                      <div className="text-sm">{message.content}</div>
+                      <div className="text-xs italic text-slate-400 select-none">
+                        {dateFormat(message.time)}
+                      </div>
+                    </div>
+                    <button
+                      className="p-1 rounded-full duration-150 flex justify-center align-center hover:bg-slate-200 hover:[&>*]:text-sky-400 self-center"
+                      title="Sao chép vào bộ nhớ tạm"
+                      onClick={() => {
+                        navigator.clipboard.writeText(message.content);
+                        setIsCopySnackBarVisible(true);
+                      }}
+                    >
+                      <ContentCopyOutlined
+                        className="text-sky-600"
+                        style={{ fontSize: "15px" }}
+                      />
+                    </button>
+                    {/* SnackBar */}
+                    <Snackbar
+                      open={isCopySnackBarVisible}
+                      autoHideDuration={3000}
+                      onClose={() => {
+                        setIsCopySnackBarVisible(false);
+                      }}
+                      anchorOrigin={{ vertical: "top", horizontal: "right" }}
+                    >
+                      <Alert
+                        severity="success"
+                        sx={{ width: "100%" }}
+                        onClose={() => {
+                          setIsCopySnackBarVisible(false);
+                        }}
+                      >
+                        Đã sao chép nội dung vào bộ nhớ tạm
+                      </Alert>
+                    </Snackbar>
+                  </li>
+                )
+            )}
           </ul>
         ) : (
-          <div className="text-slate-400 font-semibold p-3">
-            Chưa có tin nhắn nào
+          <div className="font-semibold p-3 [&>*]:text-slate-400 flex items-center justify-center">
+            <BackspaceOutlined fontSize="medium" />
+            <span className="ml-2">Chưa có tin nhắn nào</span>
           </div>
         )}
       </div>
@@ -188,16 +240,79 @@ function TemporaryMessenger({ document, hideWindowFn }) {
           value={messageContent}
           error={!messageContent.trim()}
           placeholder="Nhập tin nhắn"
+          inputRef={messageTextFieldRef}
+          multiline
+          maxRows={3}
           onChange={(e) => {
             handleMessageChange(e.target.value);
           }}
-          ref={messageTextFieldRef}
+          onKeyDown={(e) => {
+            if (
+              (e.ctrlKey && e.key === "Enter") ||
+              (e.shiftKey && e.key === "Enter")
+            ) {
+              setMessageContent((prev) => prev + "\n");
+              return;
+            }
+
+            if (e.key === "Enter" && messageContent.trim()) {
+              e.preventDefault();
+              handleSendMessage();
+            }
+          }}
         />
         <div className="flex items-center">
           <div className="ml-4 flex items-center justify-center">
-            <CustomIconButtonWrapper title={"Ghi âm"} className={"p-2"}>
-              <MicOutlined className={``} fontSize="small" />
-            </CustomIconButtonWrapper>
+            <RegularTippy
+              render={
+                <div className="flex flex-col items-center justify-center pt-2 pb-2">
+                  <span>
+                    {transcript ? "Đang ghi âm..." : "Thử nói gì đó..."}
+                  </span>
+                  <div className="flex items-center justify-center mt-5 mb-5 p-3 rounded-full bg-sky-100">
+                    <div className="absolute w-9 h-9 rounded-full bg-sky-100 animate-ping duration-500"></div>
+                    <MicOutlined className="text-red-400" />
+                  </div>
+                  <div>{transcript}</div>
+                </div>
+              }
+              visible={listening}
+            >
+              <button
+                className={`flex items-center justify-center p-3 hover:bg-slate-200 rounded-full duration-300  ${
+                  listening && "bg-slate-200"
+                } `}
+                title={`${
+                  !browserSupportsSpeechRecognition
+                    ? "Trình duyệt hiện tại không hỗ trợ chức năng này"
+                    : !listening
+                    ? "Chuyển giọng nói thành văn bản"
+                    : "Dừng ghi âm"
+                }`}
+                onClick={
+                  browserSupportsSpeechRecognition
+                    ? () => {
+                        if (listening) {
+                          setMessageContent((prev) => prev + transcript);
+                          SpeechRecognition.stopListening();
+                          resetTranscript();
+                        } else {
+                          SpeechRecognition.startListening({
+                            continuous: true,
+                          });
+                        }
+                      }
+                    : null
+                }
+              >
+                {
+                  <MicOutlined
+                    className={`${listening ? "text-sky-400" : "text-sky-600"}`}
+                    fontSize="medium"
+                  />
+                }
+              </button>
+            </RegularTippy>
           </div>
           <div className="ml-4 mr-4 flex items-center justify-center">
             <Button
@@ -205,14 +320,7 @@ function TemporaryMessenger({ document, hideWindowFn }) {
               title="Gửi tin nhắn"
               disabled={!messageContent.trim()}
               onClick={() => {
-                const messageObj = {
-                  author: user,
-                  content: messageContent,
-                  time: new Date(),
-                };
-                handleSendMessage(messageObj);
-                setMessageContent("");
-                messageTextFieldRef.current?.focus();
+                handleSendMessage();
               }}
             >
               <SendOutlined className={``} fontSize="small" />

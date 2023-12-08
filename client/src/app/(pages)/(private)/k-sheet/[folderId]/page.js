@@ -1,4 +1,4 @@
-import FileExploreLayout from "@/app/components/FileExploreLayout";
+import FileExploreLayout from "@/app/components/FileExploreComponents/FileExploreLayout";
 
 function KSheet() {
   return <FileExploreLayout componentType={"k-sheet"} />;

@@ -1,6 +1,7 @@
 package com.kma.wordprocessor.models;
 
-import com.kma.wordprocessor.dto.TxtFileUpdateDTO;
+import com.kma.wordprocessor.dto.KSheet.SheetUpdateDTO;
+import com.kma.wordprocessor.dto.KWord.DocumentActionUpdateDTO;
 import lombok.*;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.MongoId;
@@ -36,5 +37,8 @@ public class File {
     private Date createdAt;
 
     // for k-word
-    private List<TxtFileUpdateDTO> updateHistory;
+    private List<DocumentActionUpdateDTO> updateHistory;
+
+    // for k-sheet
+    private List<SheetUpdateDTO> sheetUpdateHistory;
 }

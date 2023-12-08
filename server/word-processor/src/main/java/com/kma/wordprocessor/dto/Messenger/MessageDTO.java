@@ -1,4 +1,4 @@
-package com.kma.wordprocessor.dto;
+package com.kma.wordprocessor.dto.Messenger;
 
 import com.kma.wordprocessor.models.UserInfo;
 import lombok.Data;

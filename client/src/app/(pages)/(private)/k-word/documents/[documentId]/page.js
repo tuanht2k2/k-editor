@@ -8,7 +8,7 @@ import getApiConfig from "@/app/utils/getApiConfig";
 import ClassicEditor from "@ckeditor/ckeditor5-build-classic";
 import { CKEditor } from "@ckeditor/ckeditor5-react";
 
-import Stomp from "stompjs";
+import Stomp, { over } from "stompjs";
 import SockJS from "sockjs-client";
 
 import { Fragment, useEffect, useRef, useState } from "react";
@@ -20,15 +20,6 @@ import DocumentController from "@/app/components/DocumentController";
 import CustomSkeleton from "@/app/components/CustomSkeleton";
 
 function WordEditor() {
-  const handleSaveFile = (formatType) => {
-    formatType == "Docx"
-      ? container?.documentEditor.save("K-Editor", "Docx")
-      : formatType == "Html"
-      ? container?.documentEditor.save("K-Editor", "Html")
-      : formatType == "Sfdt"
-      ? container?.documentEditor.save("K-Editor", "Sfdt")
-      : container?.documentEditor.save("K-Editor", "Txt");
-  };
   const user = useSelector((state) => state.user);
   const splitPathName = usePathname().split("/");
   const documentId = splitPathName[splitPathName.length - 1];
@@ -36,8 +27,6 @@ function WordEditor() {
   const [stompClient, setStompClient] = useState(null);
   const [document, setDocument] = useState(null);
   const [isPageLoaded, setIsPageLoaded] = useState(false);
-
-  // const [initiatingUpdateUser, setInitiatingUpdateUser] = useState(false);
 
   const [isEnabledChange, setIsEnabledChange] = useState(true);
 
@@ -49,6 +38,10 @@ function WordEditor() {
       .get(api, config)
       .then((res) => {
         const resDocument = res.data;
+        if (resDocument.format !== "txt") {
+          setIsPageLoaded(true);
+          return;
+        }
         setDocument(resDocument);
       })
       .catch((err) => {
@@ -65,14 +58,15 @@ function WordEditor() {
     if (!document) return;
     const config = getApiConfig();
     const socket = new SockJS("http://localhost:8080/ws", config);
-    const client = Stomp.over(socket);
+    const client = over(socket);
     client.connect({}, () => {
-      client.subscribe(`/document/k-word/${document._id}`, (res) => {
+      client.subscribe(`/documents/k-word/${document._id}`, (res) => {
         const action = JSON.parse(res.body);
         setDocument((prev) => ({
           ...prev,
           data: action.data,
         }));
+        console.log("vai ca dai ", action);
       });
     });
 
@@ -83,7 +77,7 @@ function WordEditor() {
   }, [document]);
 
   // check bug
-  const debounceFn = debounce((data) => handleUpdateDocument(data), 400, {
+  const debounceFn = debounce((data) => handleUpdateDocument(data), 300, {
     // maxWait: 2000,
   });
 
@@ -95,23 +89,17 @@ function WordEditor() {
     if (!document) return;
 
     const action = {
+      documentId: document._id,
       userId: user?._id,
       data: data,
       time: new Date(),
     };
 
     stompClient.send(
-      `/document/k-word/${documentId}`,
+      `/app/documents/k-word/${documentId}`,
       {},
       JSON.stringify(action)
     );
-
-    // alert("changed " + user.username);
-
-    const config = getApiConfig();
-    const documentUpdateApi = `files/txt/${document._id}/update`;
-    const reqBody = action;
-    instance.post(documentUpdateApi, reqBody, config);
   };
 
   return (

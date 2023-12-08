@@ -1,6 +1,9 @@
-package com.kma.wordprocessor.controllers;
+package com.kma.wordprocessor.controllers.WebSocketControllers;
 
-import org.json.JSONObject;
+import com.kma.wordprocessor.dto.KWord.DocumentActionUpdateDTO;
+import com.kma.wordprocessor.services.FileService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.messaging.handler.annotation.DestinationVariable;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.messaging.handler.annotation.SendTo;
@@ -11,9 +14,13 @@ import org.springframework.web.bind.annotation.CrossOrigin;
 @CrossOrigin(origins = "*")
 public class KWordDocumentController {
 
-    @MessageMapping("/")
-    @SendTo("documents/k-word/{documentId}")
-    JSONObject action (@Payload JSONObject actionObj){
+    @Autowired
+    FileService fileService;
+
+    @MessageMapping("/documents/k-word/{documentId}")
+    @SendTo("/documents/k-word/{documentId}")
+    DocumentActionUpdateDTO updateDocument (@Payload DocumentActionUpdateDTO actionObj, @DestinationVariable String documentId){
+        fileService.updateTxtFile(actionObj);
         return actionObj;
     }
 }

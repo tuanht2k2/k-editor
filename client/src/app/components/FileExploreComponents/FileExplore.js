@@ -1,29 +1,34 @@
 "use client";
 
+import { useRef, useState } from "react";
+
+import Link from "next/link";
+
 import {
   CachedOutlined,
   CreateNewFolderOutlined,
   DeleteOutline,
   DriveFolderUpload,
-  EastOutlined,
   FileOpenOutlined,
   Folder,
   FolderDeleteOutlined,
   FolderOpenOutlined,
   GridOn,
-  NoteAddOutlined,
-  PostAddOutlined,
   TextSnippetOutlined,
   WestOutlined,
 } from "@mui/icons-material";
+
 import { Breadcrumbs, Button, TextField } from "@mui/material";
 import { DataGrid } from "@mui/x-data-grid";
-import Link from "next/link";
-import { useState } from "react";
-import { instance } from "../utils/axios";
-import CustomSkeleton from "./CustomSkeleton";
-import getApiConfig from "../utils/getApiConfig";
-import { useRef } from "react";
+
+import dateFormat from "dateformat";
+
+import { instance } from "../../utils/axios";
+import getApiConfig from "../../utils/getApiConfig";
+
+import CustomSkeleton from "../CustomSkeleton";
+import CustomSnackBar from "../CustomSnackBar";
+import ConfirmBox from "../ConfirmBox";
 
 function FileExplore({
   componentType,
@@ -34,15 +39,104 @@ function FileExplore({
   isFileExploreLoaded,
   handleGetFolderData,
 }) {
-  //data grid columns configuration
-  //file
-  const fileColumns = useRef([
+  const [confirmBoxVisibleId, setConfirmBoxVisibleId] = useState(null);
+
+  // snackbar
+  const [snackBarData, setSnackBarData] = useState({
+    open: false,
+    content: "",
+    severity: "",
+  });
+
+  const folderColumns = [
     {
       field: "format",
       headerName: "Phân loại",
       renderCell: () => (
+        <div className="flex items-center">
+          <Folder className="text-yellow-600" />
+          <span className="ml-2 text-yellow-600 text-xs font-semibold">
+            Thư mục
+          </span>
+        </div>
+      ),
+      width: 150,
+    },
+    {
+      field: "_id",
+      headerName: "ID",
+      width: 0,
+      hide: true,
+    },
+    {
+      field: "name",
+      headerName: "Tên",
+      width: 300,
+      editable: true,
+    },
+    {
+      field: "createdAt",
+      headerName: "Ngày tạo",
+      width: 300,
+      renderCell: (params) => <span>{dateFormat(params.row.createdAt)}</span>,
+    },
+    {
+      field: "open",
+      headerName: "",
+      width: 50,
+      renderCell: (params) => (
+        <Link href={`/${componentType}/${params.id}`}>
+          <div className="rounded-full p-2 hover:bg-slate-200 duration-150">
+            <DriveFolderUpload
+              className="text-sky-700"
+              titleAccess="Mở thư mục"
+            />
+          </div>
+        </Link>
+      ),
+    },
+    ,
+    {
+      field: "delete",
+      headerName: "",
+      width: 50,
+      renderCell: (params) => (
+        <ConfirmBox
+          visible={confirmBoxVisibleId == params.row._id}
+          header={"Xóa tất cả tệp và tài liệu con ?"}
+          onConfirm={() => {
+            handleDeleteFolder(params.row._id);
+            setConfirmBoxVisibleId(null);
+          }}
+          onCancel={() => {
+            setConfirmBoxVisibleId(null);
+          }}
+        >
+          <div
+            className="rounded-full p-2 hover:bg-slate-200 duration-150 cursor-pointer"
+            onClick={() => {
+              setConfirmBoxVisibleId(
+                confirmBoxVisibleId == params.row._id ? null : params.row._id
+              );
+            }}
+          >
+            <FolderDeleteOutlined
+              className="text-red-500"
+              titleAccess="Xóa thư mục"
+            />
+          </div>
+        </ConfirmBox>
+      ),
+    },
+  ];
+
+  const fileColumns = [
+    {
+      field: "format",
+      headerName: "Phân loại",
+      renderCell: (params) => (
         <div>
-          {componentType == "k-sheet" ? (
+          {params.formattedValue == "xlsx" ? (
             <div className="flex items-center">
               <GridOn className="text-green-700" />
               <span className="ml-2 text-xs font-semibold text-green-700">
@@ -66,8 +160,14 @@ function FileExplore({
       field: "name",
       headerName: "Tên",
       width: 150,
+      editable: true,
     },
-    { field: "createdAt", headerName: "Sửa đổi cuối", width: 350 },
+    {
+      field: "createdAt",
+      headerName: "Ngày tạo",
+      width: 350,
+      renderCell: (params) => <span>{dateFormat(params.row.createdAt)}</span>,
+    },
     {
       field: "ownerName",
       headerName: "Chủ sở hữu",
@@ -89,7 +189,11 @@ function FileExplore({
       headerName: "",
       width: 50,
       renderCell: (params) => (
-        <Link href={`/${componentType}/documents/${params.id}`}>
+        <Link
+          href={`/${
+            params.row.format == "xlsx" ? "k-sheet" : "k-word"
+          }/documents/${params.id}`}
+        >
           <div className="rounded-full p-2 hover:bg-slate-200 duration-150">
             <FileOpenOutlined
               className="text-sky-700"
@@ -104,76 +208,39 @@ function FileExplore({
       field: "delete",
       headerName: "",
       width: 50,
-      renderCell: () => (
-        <div className="rounded-full p-2 hover:bg-slate-200 duration-150 cursor-pointer">
-          <DeleteOutline className="text-red-500" titleAccess="Xóa tài liệu" />
-        </div>
-      ),
-    },
-  ]);
-
-  //folder
-  const folderColumns = useRef([
-    {
-      field: "format",
-      headerName: "Phân loại",
-      renderCell: () => (
-        <div className="flex items-center">
-          <Folder className="text-yellow-500" />
-          <span className="ml-2 text-yellow-500 text-xs font-semibold">
-            Thư mục
-          </span>
-        </div>
-      ),
-      width: 150,
-    },
-    {
-      field: "_id",
-      headerName: "ID",
-      width: 0,
-      hide: true,
-    },
-    {
-      field: "name",
-      headerName: "Tên",
-      width: 300,
-      editable: true,
-    },
-    { field: "createAt", headerName: "Ngày tạo", width: 300 },
-    {
-      field: "open",
-      headerName: "",
-      width: 50,
       renderCell: (params) => (
-        <Link href={`/${componentType}/${params.id}`}>
-          <div className="rounded-full p-2 hover:bg-slate-200 duration-150">
-            <DriveFolderUpload
-              className="text-sky-700"
-              titleAccess="Mở thư mục"
+        <ConfirmBox
+          visible={confirmBoxVisibleId == params.row._id}
+          header={"Bạn muốn xóa tệp này không ?"}
+          onConfirm={() => {
+            handleDeleteFile(params.row._id);
+            setConfirmBoxVisibleId(null);
+          }}
+          onCancel={() => {
+            setConfirmBoxVisibleId(null);
+          }}
+        >
+          <div
+            className="rounded-full p-2 hover:bg-slate-200 duration-150 cursor-pointer"
+            onClick={() => {
+              setConfirmBoxVisibleId(
+                confirmBoxVisibleId == params.row._id ? null : params.row._id
+              );
+            }}
+          >
+            <DeleteOutline
+              className="text-red-500"
+              titleAccess="Xóa tài liệu"
             />
           </div>
-        </Link>
+        </ConfirmBox>
       ),
     },
-    ,
-    {
-      field: "delete",
-      headerName: "",
-      width: 50,
-      renderCell: () => (
-        <div className="rounded-full p-2 hover:bg-slate-200 duration-150 cursor-pointer">
-          <FolderDeleteOutlined
-            className="text-red-500"
-            titleAccess="Xóa thư mục"
-          />
-        </div>
-      ),
-    },
-  ]);
+  ];
 
   const [createFolderFormData, setCreateFolderFormData] = useState({
     isVisble: false,
-    value: "New folder",
+    value: "",
     isSubmitBtnSpinning: false,
   });
 
@@ -197,21 +264,47 @@ function FileExplore({
 
     instance
       .post("/folders/create", newFolder, config)
-      .then((res) => {
+      .then(() => {
+        handleGetFolderData();
+        setSnackBarData(() => ({
+          open: true,
+          content: "Tạo thư mục thành công",
+          severity: "success",
+          placement: { vertical: "bottom", horizontal: "right" },
+        }));
+      })
+      .catch(() => {})
+      .finally(() => {
         setCreateFolderFormData((prev) => ({
           ...prev,
           isSubmitBtnSpinning: false,
           isVisble: false,
         }));
+      });
+  };
 
+  const handleDeleteFolder = (folderId) => {
+    const api = `folders/${folderId}/delete`;
+
+    instance
+      .delete(api, getApiConfig())
+      .then(() => {
         handleGetFolderData();
+        setSnackBarData(() => ({
+          open: true,
+          content: "Xóa thư mục thành công",
+          severity: "success",
+          placement: { vertical: "bottom", horizontal: "right" },
+        }));
       })
-      .catch((err) =>
-        setCreateFolderFormData((prev) => ({
-          ...prev,
-          isSubmitBtnSpinning: false,
-        }))
-      );
+      .catch(() => {
+        setSnackBarData(() => ({
+          open: true,
+          content: "Không thể xóa thư mục",
+          severity: "error",
+          placement: { vertical: "bottom", horizontal: "right" },
+        }));
+      });
   };
 
   const handleRenameFolder = (dataGridParams, event) => {
@@ -225,12 +318,71 @@ function FileExplore({
 
     instance
       .patch(`folders/${folder?._id}/new-name=${newName}`, {}, config)
-      .then((res) => {})
+      .then(() => {
+        setSnackBarData(() => ({
+          open: true,
+          content: "Đổi tên thư mục thành công",
+          severity: "success",
+          placement: { vertical: "bottom", horizontal: "left" },
+        }));
+      })
       .catch((err) => console.log(err));
+  };
+
+  const handleRenameFile = (dataGridParams, event) => {
+    const file = dataGridParams.row;
+    const newName = event.target?.value;
+
+    if (!newName) return;
+    if (file.name == newName || !newName.trim()) return;
+
+    const config = getApiConfig();
+
+    instance
+      .patch(`files/${file?._id}/new-name=${newName}`, {}, config)
+      .then((res) => {})
+      .then(() => {
+        setSnackBarData(() => ({
+          open: true,
+          content: "Đổi tên file thành công",
+          severity: "success",
+          placement: { vertical: "bottom", horizontal: "left" },
+        }));
+      })
+      .catch((err) => console.log(err));
+  };
+
+  const handleDeleteFile = (fileId) => {
+    const api = `files/${fileId}/delete`;
+
+    instance
+      .delete(api, getApiConfig())
+      .then(() => {
+        handleGetFolderData();
+        setSnackBarData(() => ({
+          open: true,
+          content: "Xóa file thành công",
+          severity: "success",
+          placement: { vertical: "bottom", horizontal: "right" },
+        }));
+      })
+      .catch(() => {
+        setIsErrorSnackBarVisible(true);
+      });
   };
 
   return (
     <div className="mt-5 border-slate-200 border-2 p-5 rounded-xl">
+      <CustomSnackBar
+        open={snackBarData.open}
+        onCLose={() => {
+          setSnackBarData((prev) => ({ ...prev, open: false }));
+        }}
+        content={snackBarData.content}
+        severity={snackBarData.severity || "info"}
+        placement={snackBarData.placement}
+      />
+
       <div className="flex justify-between items-center">
         <div className="flex item-center">
           <h1 className="font-bold flex items-center text-2xl ">
@@ -238,7 +390,7 @@ function FileExplore({
               Quản lí tài nguyên <FolderOpenOutlined />
             </span>
           </h1>
-          {componentType !== "any" && (
+          {componentType !== "file-explore" && (
             <span className="ml-4 flex items-center text-slate-400 text-sm">
               {`Lưu ý: Chỉ xem được những file định dạng ${
                 componentType === "k-word" ? ".txt" : ".xlsx"
@@ -265,7 +417,7 @@ function FileExplore({
             title="Tạo thư mục"
             onClick={() => {
               setCreateFolderFormData((prev) => ({
-                value: "New folder",
+                value: "",
                 isVisble: !prev.isVisble,
               }));
             }}
@@ -295,7 +447,7 @@ function FileExplore({
         </Link>
         {parentFolder && (
           <Link
-            href={`/k-sheet/${parentFolder._id}`}
+            href={`/${componentType}/${parentFolder._id}`}
             color="red"
             className={`rounded-sm p-1 text-sm underline`}
           >
@@ -303,9 +455,12 @@ function FileExplore({
           </Link>
         )}
       </Breadcrumbs>
+
+      {/* folder */}
       <div>
         <div className="pt-4">
           <h1 className="text-md font-semibold">Thư mục</h1>
+          {/* create file */}
           {createFolderFormData.isVisble && (
             <div className="pt-4 pb-4 border-slate-100 flex items-center">
               <TextField
@@ -316,6 +471,9 @@ function FileExplore({
                     ...prev,
                     value: e.target.value,
                   }));
+                }}
+                onKeyDown={(e) => {
+                  e.key === "Enter" && handleCreateFolder();
                 }}
                 error={!createFolderFormData.value.trim()}
                 inputRef={(input) => input && input.focus()}
@@ -340,19 +498,22 @@ function FileExplore({
               </Button>
             </div>
           )}
+
           {isFileExploreLoaded ? (
             folders?.length > 0 ? (
               <DataGrid
                 className="mt-1"
-                columns={folderColumns.current}
+                columns={folderColumns}
                 rows={folders}
                 getRowId={getFolderRowId}
-                initialState={{
-                  pagination: {
-                    paginationModel: { page: 0, pageSize: 5 },
-                  },
-                }}
-                pageSizeOptions={[5, 10]}
+                initialState={
+                  {
+                    // pagination: {
+                    //   paginationModel: { page: 0, pageSize: 5 },
+                    // },
+                  }
+                }
+                // pageSizeOptions={[5, 10]}
                 rowSelection={false}
                 onCellEditStop={(params, e) => {
                   handleRenameFolder(params, e);
@@ -369,22 +530,29 @@ function FileExplore({
             <CustomSkeleton />
           )}
         </div>
+
+        {/* file */}
         <div className="pt-4">
           <h1 className="text-md font-semibold">Tài liệu</h1>
           {isFileExploreLoaded ? (
             files?.length > 0 ? (
               <DataGrid
                 className="mt-1"
-                columns={fileColumns.current}
+                columns={fileColumns}
                 rows={files}
                 getRowId={getFileRowId}
-                initialState={{
-                  pagination: {
-                    paginationModel: { page: 0, pageSize: 5 },
-                  },
-                }}
-                pageSizeOptions={[5, 10]}
+                initialState={
+                  {
+                    // pagination: {
+                    //   paginationModel: { page: 0, pageSize: 5 },
+                    // },
+                  }
+                }
+                // pageSizeOptions={[5, 10]}
                 rowSelection={false}
+                onCellEditStop={(params, e) => {
+                  handleRenameFile(params, e);
+                }}
                 disableColumnMenu
                 columnVisibilityModel={{ _id: false }}
               />
