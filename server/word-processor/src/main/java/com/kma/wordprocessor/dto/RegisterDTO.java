@@ -13,6 +13,8 @@ public class RegisterDTO {
 
     private String username;
 
+    private String phoneNumber;
+
     private String password;
 
 }

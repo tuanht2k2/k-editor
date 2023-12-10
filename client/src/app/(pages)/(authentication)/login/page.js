@@ -163,7 +163,7 @@ function SignIn() {
   return (
     <div className="w-full h-full bg-slate-100 bg-cover flex justify-center items-center">
       <div className="p-10 flex justify-center items-center">
-        <div className="border-slate-200 border-2 flex-1 rounded-2xl p-7 bg-white text-center">
+        <div className="border-sky-300 border-2 flex-1 rounded-2xl p-7 bg-white text-center">
           <div className="w-full p-5 text-3xl font-bold text-slate-700 border-b-2 border-slate-200 font-mono">
             Đăng nhập
           </div>

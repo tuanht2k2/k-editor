@@ -23,6 +23,10 @@ public class UserInfo {
 
     private String email;
 
+    private String phoneNumber;
+
+    private String profileImage;
+
     private String roles;
 
     private String password;
@@ -30,12 +34,12 @@ public class UserInfo {
     @Field("folders")
     private List<String> folders;
 
-    @Field("files")
-    private List<String> files;
+    private List<String> recentFiles;
 
-    public UserInfo(String username, String email, String password, String roles) {
+    public UserInfo(String username, String email, String phoneNumber,String password, String roles) {
         this.username = username;
         this.email = email;
+        this.phoneNumber = phoneNumber;
         this.password = password;
         this.roles = roles;
     }

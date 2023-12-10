@@ -28,7 +28,12 @@ function WordEditor() {
   const [document, setDocument] = useState(null);
   const [isPageLoaded, setIsPageLoaded] = useState(false);
 
-  const [isEnabledChange, setIsEnabledChange] = useState(true);
+  const handleAccessDocument = () => {
+    // save file id to db
+    const api = `/users/${user._id}/access-file/${documentId}`;
+    console.log(api);
+    instance.post(api, {}, getApiConfig());
+  };
 
   const handleGetDocumentData = () => {
     const config = getApiConfig();
@@ -42,6 +47,7 @@ function WordEditor() {
           setIsPageLoaded(true);
           return;
         }
+        handleAccessDocument();
         setDocument(resDocument);
       })
       .catch((err) => {
@@ -108,10 +114,7 @@ function WordEditor() {
         <Custom404 />
       ) : document ? (
         <div className="h-full p-5">
-          <DocumentController
-            document={document}
-            reload={handleGetDocumentData}
-          />
+          <DocumentController file={document} reload={handleGetDocumentData} />
           <CKEditor
             editor={ClassicEditor}
             onChange={(event, editor) => {

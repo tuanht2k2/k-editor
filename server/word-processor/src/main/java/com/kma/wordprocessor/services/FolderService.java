@@ -102,4 +102,38 @@ public class FolderService {
         }
         return "FAILED";
     }
+
+    // move folder
+
+    public boolean isNewParentFolderValid (String folderId, String newParentFolderId) {
+        if (newParentFolderId.equals("root")) return true;
+        if (newParentFolderId.equals(folderId)) return false;
+
+        Optional<Folder> optionalFolder = folderRepository.findById(newParentFolderId);
+        if (optionalFolder.isEmpty()) return false;
+        return isNewParentFolderValid(folderId, optionalFolder.get().getParentId());
+    }
+
+    public void moveFolder (String folderId ,String newParentFolderId) {
+        Optional<Folder> optionalFolder = folderRepository.findById(folderId);
+        if (optionalFolder.isEmpty()) return;
+        Folder folder = optionalFolder.get();
+        folder.setParentId(newParentFolderId);
+        folderRepository.save(folder);
+    }
+
+    public boolean moveListFolder (List<String> folderIds, String newParentFolderId) {
+        boolean isValid = true;
+        for (String folderId : folderIds) {
+            if (!isNewParentFolderValid(folderId, newParentFolderId)) {
+                isValid = false;
+                break;
+            }
+        }
+        if (!isValid) return false;
+        for (String folderId : folderIds) {
+            moveFolder(folderId, newParentFolderId);
+        }
+        return true;
+    }
 }

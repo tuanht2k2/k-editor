@@ -21,24 +21,22 @@ import { Fragment, useEffect, useRef, useState } from "react";
 import getApiConfig from "../utils/getApiConfig";
 import { instance } from "../utils/axios";
 
-import dateFormat from "dateformat";
 import { Alert, Snackbar } from "@mui/material";
-import TemporaryMessenger from "./TemporaryMessenger";
-import SheetUpdateDetails from "./SheetUpdateDetails";
-import { SpreadsheetComponent } from "@syncfusion/ej2-react-spreadsheet";
+import dateFormat from "dateformat";
 
-function DocumentController({ document, reload }) {
+import SheetUpdateDetails from "./SheetUpdateDetails";
+import TemporaryMessenger from "./TemporaryMessenger";
+
+function DocumentController({ file, reload }) {
   const [updateHistoryData, setUpdateHistoryData] = useState({
     isVisble: false,
     data:
-      document.format == "txt"
-        ? [...(document.updateHistory || [])].reverse()
-        : [...(document.sheetUpdateHistory || [])].reverse(),
+      file.format == "txt"
+        ? [...(file.updateHistory || [])].reverse()
+        : [...(file.sheetUpdateHistory || [])].reverse(),
   });
 
-  const spreadsheetRef1 = useRef(null);
-
-  // user who edits document
+  // user who edits file
   const [users, setUsers] = useState(null);
 
   const [isPageLoaded, setIsPageLoaded] = useState(false);
@@ -46,10 +44,10 @@ function DocumentController({ document, reload }) {
   // specific update id which is visibled
   const [updateHistoryTippy, setUpdateHistoryTippy] = useState({
     indexVisible: null,
-    updateArgsObj: null,
+    updateArgsObj: null, // for sheet
   });
 
-  // share document
+  // share file
   const [isShareVisible, setIsShareVisible] = useState(false);
   const [isCopySnackBarVisible, setIsCopySnackBarVisible] = useState(false);
 
@@ -57,13 +55,13 @@ function DocumentController({ document, reload }) {
     useState(false);
 
   const handleGetUsers = () => {
-    if (!document.updateHistory && !document.sheetUpdateHistory) {
+    if (!file.updateHistory && !file.sheetUpdateHistory) {
       setIsPageLoaded(true);
       return;
     }
 
     const config = getApiConfig();
-    const history = document.updateHistory || document.sheetUpdateHistory || [];
+    const history = file.updateHistory || file.sheetUpdateHistory || [];
     const uidList = history.map((update) => update.userId);
     const api = `/users/getallbyids`;
 
@@ -82,9 +80,22 @@ function DocumentController({ document, reload }) {
     setUpdateHistoryTippy((prev) => ({ ...prev, indexVisible: null }));
   };
 
+  const handleReloadHistory = () => {
+    setUpdateHistoryData((prev) => {
+      return {
+        ...prev,
+        data:
+          file.format == "txt"
+            ? [...(file.updateHistory || [])].reverse()
+            : [...(file.sheetUpdateHistory || [])].reverse(),
+      };
+    });
+  };
+
   useEffect(() => {
     handleGetUsers();
-  }, [document]);
+    handleReloadHistory();
+  }, [file]);
 
   useEffect(() => {
     if (!updateHistoryData.isVisble) return;
@@ -95,20 +106,20 @@ function DocumentController({ document, reload }) {
   return (
     <div className="pt-4 pb-4 flex items-center justify-between">
       <div className="flex items-center">
-        {document.format === "txt" ? (
+        {file.format === "txt" ? (
           <TextSnippetOutlined className="text-sky-600" />
         ) : (
           <GridOn className="text-green-600" />
         )}
-        <span className="ml-2 font-semibold italic">{`${document.name}.${document.format}`}</span>
+        <span className="ml-2 font-semibold italic">{`${file.name}.${file.format}`}</span>
       </div>
-      {/* document action */}
+      {/* file action */}
       <div className="flex items-center justify-end">
         {/* messenger */}
         <RegularTippy
           render={
             <TemporaryMessenger
-              document={document}
+              document={file}
               hideWindowFn={() => {
                 setIsTemporaryMessengerVisible(false);
               }}
@@ -143,23 +154,22 @@ function DocumentController({ document, reload }) {
                   <div className="font-semibold text-slate-600">
                     Lịch sử chỉnh sửa
                   </div>
-                  {/* <button
-                className="ml-5 p-1 flex items-center justify-center rounded-full duration-300 cursor-pointer bg-slate-50 hover:bg-slate-200"
-                onClick={handleCollapseUpdateHistory}
-                title="Tải lại"
-              >
-                <CachedOutlined
-                  className="text-slate-400 text-md"
-                  
-                />
-              </button> */}
-                  <button
-                    className="ml-5 p-1 flex items-center justify-center rounded-full duration-300 cursor-pointer bg-slate-50 hover:bg-slate-200"
-                    onClick={handleCollapseUpdateHistory}
-                    title="Đóng"
-                  >
-                    <CloseOutlined className="text-slate-400 text-md" />
-                  </button>
+                  <div className="flex items-center">
+                    <button
+                      className="ml-5 p-1 flex items-center justify-center rounded-full duration-300 cursor-pointer bg-slate-50 hover:bg-slate-200"
+                      onClick={reload}
+                      title="Tải lại"
+                    >
+                      <CachedOutlined className="text-sky-500 text-md" />
+                    </button>
+                    <button
+                      className="ml-5 p-1 flex items-center justify-center rounded-full duration-300 cursor-pointer bg-slate-50 hover:bg-slate-200"
+                      onClick={handleCollapseUpdateHistory}
+                      title="Đóng"
+                    >
+                      <CloseOutlined className="text-slate-400 text-md" />
+                    </button>
+                  </div>
                 </div>
                 {updateHistoryData.data.length > 0 && users ? (
                   // render update list
@@ -199,7 +209,7 @@ function DocumentController({ document, reload }) {
                             placement={"bottom"}
                             visible={index == updateHistoryTippy.indexVisible}
                             render={
-                              document.format === "txt" ? ( // history of txt file
+                              file.format === "txt" ? ( // history of txt file
                                 <div className="bg-white rounded-md border-2 border-slate-300 p-4">
                                   <div className="flex items-center justify-between pb-2 border-b-2 border-slate-300 font-semibold">
                                     <div className="flex items-center text-sm font-semibold italic text-slate-400">
@@ -255,14 +265,7 @@ function DocumentController({ document, reload }) {
                                     </div>
                                   </div>
                                 </div>
-                              ) : (
-                                // <FileUpdateDetails
-                                //   updateArgsObj={JSON.parse(
-                                //     update.updateArgsObj
-                                //   )}
-                                // />
-                                <div></div>
-                              )
+                              ) : null
                             }
                           >
                             <button
@@ -273,9 +276,16 @@ function DocumentController({ document, reload }) {
                               }  `}
                               onClick={() =>
                                 setUpdateHistoryTippy((prev) => ({
-                                  ...prev,
+                                  updateArgsObj:
+                                    file.format === "txt"
+                                      ? null
+                                      : JSON.parse(update.updateArgsObj),
                                   indexVisible:
-                                    prev.indexVisible == index ? null : index,
+                                    file.format === "txt"
+                                      ? prev.indexVisible == index
+                                        ? null
+                                        : index
+                                      : "sheet",
                                 }))
                               }
                             >
@@ -325,19 +335,18 @@ function DocumentController({ document, reload }) {
           </RegularTippy>
 
           {/* render sheet update history */}
-          <RegularTippy
-            render={
-              <div>
-                <SpreadsheetComponent ref={spreadsheetRef1} />
-              </div>
-            }
-            // visible={updateHistoryTippy.indexVisible === "sheetUpdateVisible"}
-            // visible={true}
-            visible={false}
-          >
-            <span></span>
-          </RegularTippy>
+          <SheetUpdateDetails
+            open={updateHistoryTippy.indexVisible === "sheet"}
+            onClose={() => {
+              setUpdateHistoryTippy((prev) => ({
+                indexVisible: null,
+                updateArgsObj: null,
+              }));
+            }}
+            updateArgsObj={updateHistoryTippy.updateArgsObj}
+          />
         </div>
+
         {/* share */}
         <div className="flex items-center">
           {isShareVisible && (
@@ -365,12 +374,12 @@ function DocumentController({ document, reload }) {
                   ID:
                 </span>
                 <span className="flex items-center font-semibold text-xs text-blue-800">
-                  {document._id}
+                  {file._id}
                 </span>
                 <button
                   className="ml-2 p-1 flex items-center justify-center rounded-full duration-300 cursor-pointer hover:bg-slate-200"
                   onClick={() => {
-                    navigator.clipboard.writeText(document._id);
+                    navigator.clipboard.writeText(file._id);
                     setIsCopySnackBarVisible(true);
                   }}
                   title="Copy"

@@ -1,23 +1,60 @@
+import { registerLicense } from "@syncfusion/ej2-base";
+registerLicense(
+  "ORg4AjUWIQA/Gnt2VlhiQlVPd0BBQmFJfFdmTWlcflR0fUU3HVdTRHRcQ19jTX5bc0dnUHpddnY="
+);
+
 import { useEffect, useRef } from "react";
 
 import { SpreadsheetComponent } from "@syncfusion/ej2-react-spreadsheet";
 
-function SheetUpdateDetails({ updateArgsObj }) {
+import HeadlessTippy from "@tippyjs/react/headless";
+import { ClearOutlined, RemoveOutlined } from "@mui/icons-material";
+
+function SheetUpdateDetails({ updateArgsObj, open, onClose }) {
   const spreadsheetRef = useRef(null);
 
   useEffect(() => {
-    // spreadsheetRef.current?.updateAction(updateArgsObj);
-  }, []);
+    if (!open || !updateArgsObj) return;
+    spreadsheetRef.current?.updateAction(updateArgsObj);
+  }, [open]);
 
   return (
-    <div>
-      <SpreadsheetComponent
-        ref={spreadsheetRef}
-        allowOpen={true}
-        showRibbon={false}
-        allowEditing={false}
-      />
-    </div>
+    <HeadlessTippy
+      visible
+      interactive={open}
+      appendTo={document.body}
+      render={() => (
+        <div
+          className={`bg-slate-300/[.40] shadow-md border-2 border-slate-200 h-[calc(100vh-15px)] w-[calc(100vw-1px)] flex items-center justify-center ${
+            open ? " cursor-pointer" : "hidden"
+          }`}
+        >
+          <div className="flex flex-col items-end">
+            <button
+              className={`flex items-center justify-center p-1 hover:bg-red-400 rounded-full duration-300 bg-red-500 mb-2 border-2 border-red-400`}
+              title={"Đóng cửa sổ"}
+              onClick={() => {
+                onClose();
+              }}
+            >
+              <ClearOutlined className="text-white" />
+            </button>
+            <div className="p-14 pt-6">
+              <div className="border-2 border-sky-400">
+                <SpreadsheetComponent
+                  ref={spreadsheetRef}
+                  width={"500px"}
+                  height={"500px"}
+                  showRibbon={false}
+                  allowEditing={false}
+                  allowInsert={false}
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+    ></HeadlessTippy>
   );
 }
 

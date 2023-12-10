@@ -36,6 +36,12 @@ function SheetEditor() {
 
   const [isPageLoaded, setIsPageLoaded] = useState(false);
 
+  const handleAccessFile = () => {
+    // save file id to db
+    const api = `/users/${user._id}/access-file/${sheetId}`;
+    instance.post(api, {}, getApiConfig());
+  };
+
   const handleGetSheetData = () => {
     const config = getApiConfig();
     const api = `/files/${sheetId}`;
@@ -58,6 +64,7 @@ function SheetEditor() {
         });
 
         setSheet(resSheet);
+        handleAccessFile();
       })
       .catch((err) => {
         console.log(err);
@@ -86,8 +93,11 @@ function SheetEditor() {
   }, [sheet]);
 
   useEffect(() => {
+    if (Object.keys(user).length == 0) {
+      return;
+    }
     handleGetSheetData();
-  }, [spreadsheetRef.current]);
+  }, [user]);
 
   const handleActionComplete = (args) => {
     if (!sheet) return;
@@ -108,13 +118,14 @@ function SheetEditor() {
         <CustomSkeleton />
       ) : sheet ? (
         <div className="h-[calc(100%-84px)]">
-          <DocumentController document={sheet} reload={handleGetSheetData} />
+          <DocumentController file={sheet} reload={handleGetSheetData} />
           <SpreadsheetComponent
             ref={spreadsheetRef}
             actionComplete={(args) => {
               handleActionComplete(args);
             }}
             allowOpen={true}
+            allowInsert={false}
           />
         </div>
       ) : (

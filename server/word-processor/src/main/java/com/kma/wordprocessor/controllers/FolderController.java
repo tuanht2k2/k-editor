@@ -1,5 +1,6 @@
 package com.kma.wordprocessor.controllers;
 
+import com.kma.wordprocessor.dto.MovedFolderAndFileDTO;
 import com.kma.wordprocessor.dto.ResFileExploreDTO;
 import com.kma.wordprocessor.dto.ResFolderDTO;
 import com.kma.wordprocessor.models.File;
@@ -66,5 +67,13 @@ public class FolderController {
     public ResponseEntity<String> editFolderName(@PathVariable String folderId, @PathVariable String newName) {
         String editStt = folderService.editFolderName(folderId, newName);
         return editStt.equals("OK") ? new ResponseEntity<String>("OK", HttpStatus.OK) : new ResponseEntity<String>("FAILED", HttpStatus.NOT_FOUND);
+    }
+
+    @PatchMapping(path = "{folderId}/move-file-explore")
+    public ResponseEntity<?> moveFileExplore(@RequestBody MovedFolderAndFileDTO movedFolderAndFileDTO, @PathVariable String folderId){
+        boolean isMoveFoldersSuccess = folderService.moveListFolder(movedFolderAndFileDTO.getFolders(), folderId);
+        if (!isMoveFoldersSuccess) return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
+        fileService.moveListFile(movedFolderAndFileDTO.getFiles(), folderId);
+        return new ResponseEntity<>(null, HttpStatus.OK);
     }
 }

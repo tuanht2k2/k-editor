@@ -2,12 +2,16 @@ package com.kma.wordprocessor.controllers;
 
 import com.kma.wordprocessor.dto.KWord.DocumentActionUpdateDTO;
 import com.kma.wordprocessor.models.File;
+import com.kma.wordprocessor.models.UserInfo;
 import com.kma.wordprocessor.repositories.FileRepository;
 import com.kma.wordprocessor.services.FileService;
+import org.apache.catalina.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @CrossOrigin(origins = "*")
 @RestController
@@ -33,6 +37,11 @@ public class FileController {
         return  new ResponseEntity<File>(file,(file == null) ? HttpStatus.NOT_FOUND : HttpStatus.OK);
     }
 
+    @PostMapping(path = "/get-file-list/format={format}")
+    public ResponseEntity<List<File>> getAllUserByIds (@RequestBody List<String> ids, @PathVariable String format) {
+        return new ResponseEntity<List<File>>(fileService.getAllFileByIds(ids, format), HttpStatus.OK);
+    }
+
     // with txt file
     @PostMapping(path = "/txt/{fileId}/update")
     public ResponseEntity<String> updateTxtFile (@PathVariable String fileId,@RequestBody DocumentActionUpdateDTO txtFileUpdateDTO) {
@@ -51,4 +60,5 @@ public class FileController {
         fileService.deleteFileById(fileId);
         return new ResponseEntity<String>("OK", HttpStatus.OK);
     }
+
 }

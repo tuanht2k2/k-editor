@@ -64,6 +64,34 @@ public class FileService {
         return subFiles;
     }
 
+    public List<File> getAllFileByIds(List<String> ids, String format) {
+        List<File> fileList = format.equals("any") ? fileRepository.findAllById(ids) :fileRepository.findAllBy_idInAndFormat(ids, format);
+
+        for (File file : fileList) {
+            Optional<UserInfo> optionalUser = userRepository.findById(file.getOwnerId());
+            if (optionalUser.isPresent()) {
+                file.setOwnerName(optionalUser.get().getUsername());
+            }
+        }
+
+        return fileList;
+    }
+
+    public void moveFile(String fileId, String newParentFolderId){
+        Optional<File> optionalFile = fileRepository.findById(fileId);
+        if (optionalFile.isEmpty()) return;
+        File file = optionalFile.get();
+        file.setParentFolderId(newParentFolderId);
+        fileRepository.save(file);
+        return;
+    }
+
+    public void moveListFile(List<String> fileIds, String newParentFolderId) {
+        for (String fileId : fileIds) {
+            moveFile(fileId, newParentFolderId);
+        }
+    }
+
     public void deleteFileById(String fileId){
         Optional<File> optionalFile = fileRepository.findById(fileId);
         if (optionalFile.isPresent()){

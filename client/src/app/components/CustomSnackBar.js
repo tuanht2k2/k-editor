@@ -8,7 +8,11 @@ function CustomSnackBar({ content, severity, open, onCLose, placement }) {
       onClose={onCLose}
       anchorOrigin={placement || { vertical: "top", horizontal: "right" }}
     >
-      <Alert onClose={onCLose} severity={severity} sx={{ width: "100%" }}>
+      <Alert
+        onClose={onCLose}
+        severity={severity || "info"}
+        sx={{ width: "100%" }}
+      >
         {content}
       </Alert>
     </Snackbar>

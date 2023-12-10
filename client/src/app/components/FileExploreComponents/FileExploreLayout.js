@@ -12,7 +12,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { useSelector } from "react-redux";
 import CreateFile from "./CreateFile";
 import AccessFile from "./AcessFile";
-import { Snackbar } from "@mui/material";
+import { Skeleton } from "@mui/material";
 
 function FileExploreLayout({ componentType }) {
   const user = useSelector((state) => state.user);
@@ -22,6 +22,7 @@ function FileExploreLayout({ componentType }) {
   const [fileExplore, setFileExplore] = useState({
     folders: null,
     files: null,
+    recentFiles: null,
   });
 
   const [isAvailbleFolder, setIsAvailbleFolder] = useState(true);
@@ -31,8 +32,6 @@ function FileExploreLayout({ componentType }) {
   const currentFolderId = currentPath[currentPath.length - 1];
 
   const handleGetFolderData = () => {
-    if (Object.keys(user).length <= 0) return;
-
     const config = getApiConfig();
     const folderId = currentFolderId == "home" ? "root" : currentFolderId;
     const api = `folders/userid=${user._id}&folderid=${folderId}&fileformat=${
@@ -50,16 +49,42 @@ function FileExploreLayout({ componentType }) {
           setIsAvailbleFolder(false);
           return;
         }
-        setFileExplore(res.data);
-        setIsFileExploreLoaded(true);
+        setFileExplore((prev) => ({ ...prev, ...res.data }));
+        handleGetRecentFiles();
       })
-      .catch((err) => {
-        console.log(err);
+      .catch(() => {
         setIsAvailbleFolder(false);
       });
   };
 
+  const handleGetRecentFiles = () => {
+    const api = `/files/get-file-list/format=${
+      componentType == "file-explore"
+        ? "any"
+        : componentType == "k-word"
+        ? "txt"
+        : "xlsx"
+    }`;
+    const recentFileIds = user.recentFiles;
+    if (!recentFileIds) {
+      setIsFileExploreLoaded(true);
+      return;
+    }
+    instance
+      .post(api, recentFileIds, getApiConfig())
+      .then((res) =>
+        setFileExplore((prev) => ({
+          ...prev,
+          recentFiles: [...res.data].reverse(),
+        }))
+      )
+      .finally(() => {
+        setIsFileExploreLoaded(true);
+      });
+  };
+
   useEffect(() => {
+    if (Object.keys(user).length == 0) return;
     handleGetFolderData();
   }, [user]);
 
@@ -93,6 +118,7 @@ function FileExploreLayout({ componentType }) {
             parentFolder={fileExplore.folders?.folder}
             folders={fileExplore.folders?.subFolders}
             files={fileExplore.files}
+            recentFiles={fileExplore.recentFiles}
             isFileExploreLoaded={isFileExploreLoaded}
             handleGetFolderData={handleGetFolderData}
           />

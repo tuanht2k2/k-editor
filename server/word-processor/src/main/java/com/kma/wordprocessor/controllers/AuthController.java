@@ -53,14 +53,12 @@ public class AuthController {
         } catch (BadCredentialsException ex){
             return new ResponseEntity<AuthResponse>(new AuthResponse(loginDTO.getUsername(), "", "FAILED"), HttpStatus.UNAUTHORIZED);
         }
-
-
     }
 
     @PostMapping("/register")
     public ResponseEntity<String> register(@RequestBody RegisterDTO registerDTO) {
 
-        UserInfo newUser = new UserInfo(registerDTO.getUsername(), registerDTO.getEmail(), registerDTO.getPassword(),"user");
+        UserInfo newUser = new UserInfo(registerDTO.getUsername(), registerDTO.getEmail(), registerDTO.getPhoneNumber(),registerDTO.getPassword(),"user");
         ResponseObj responseObj =  userService.addUser(newUser);
         if (responseObj.getStatus().equals("OK")) {
             return new ResponseEntity<>("Account registration successful!", HttpStatus.OK);

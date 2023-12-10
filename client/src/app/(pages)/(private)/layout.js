@@ -31,6 +31,7 @@ import ListItemText from "@mui/material/ListItemText";
 
 import { Button, Grid, Menu, MenuItem } from "@mui/material";
 import {
+  AccountCircleOutlined,
   DriveFileMoveOutlined,
   GridOnOutlined,
   GroupOutlined,
@@ -137,6 +138,13 @@ const navbarMenu = [
     href: "/k-sheet/home",
   },
   { type: "devider" },
+  {
+    type: "link",
+    title: "Tài khoản",
+    icon: <AccountCircleOutlined />,
+    href: "/account",
+  },
+  { type: "devider" },
 ];
 
 function RootLayout({ children }) {
@@ -175,6 +183,7 @@ function RootLayout({ children }) {
 
   const handleLogOut = () => {
     localStorage.removeItem("jwtToken");
+    localStorage.removeItem("username");
     dispatch(logout());
     router.push("/login");
   };
@@ -297,7 +306,7 @@ function RootLayout({ children }) {
                         <MenuItem onClick={handleClose}>
                           <Link
                             className="flex items-center [&>*]:text-sky-900"
-                            href={"/profile"}
+                            href={"/account"}
                           >
                             <FontAwesomeIcon icon={faUser} />
                             <div className="ml-4">{`Tài khoản - ${user.username}`}</div>

@@ -11,4 +11,6 @@ public interface FileRepository extends MongoRepository<File, String> {
     List<File> findByOwnerIdAndParentFolderId(String ownerId, String parentFolderId);
 
     List<File> findByOwnerIdAndParentFolderIdAndFormat(String ownerId, String parentFolderId, String format);
+
+    List<File> findAllBy_idInAndFormat(List<String> ids, String format);
 }
