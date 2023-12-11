@@ -28,6 +28,8 @@ public class File {
 
     private String name;
 
+    private String password;
+
     private String format;
 
     private String data;

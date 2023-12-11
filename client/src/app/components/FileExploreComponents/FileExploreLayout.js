@@ -45,10 +45,6 @@ function FileExploreLayout({ componentType }) {
     instance
       .get(api, config)
       .then((res) => {
-        if (res.status !== 200) {
-          setIsAvailbleFolder(false);
-          return;
-        }
         setFileExplore((prev) => ({ ...prev, ...res.data }));
         handleGetRecentFiles();
       })

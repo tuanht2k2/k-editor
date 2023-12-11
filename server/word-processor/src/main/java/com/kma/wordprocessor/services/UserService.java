@@ -58,15 +58,23 @@ public class UserService {
         return optionalUserInfo.orElse(null);
     }
 
-    public ResponseObj addUser(UserInfo userInfo) {
-        if (userRepo.existsUserInfosByUsernameAndEmail(userInfo.getUsername(), userInfo.getEmail())) {
-            return new ResponseObj("BAD_REQUEST", "Add user failed!", "");
+    public String addUser(UserInfo userInfo) {
+        if (userRepo.existsUserInfosByUsername(userInfo.getUsername())) {
+           return "usernameExisted";
+        }
+
+        if (userRepo.existsUserInfosByEmail(userInfo.getEmail())) {
+            return "emailExisted";
+        }
+
+        if (userRepo.existsUserInfosByPhoneNumber(userInfo.getPhoneNumber())) {
+            return "phoneNumberExisted";
         }
 
         String passEncoded = passwordEncoder.encode(userInfo.getPassword());
         userInfo.setPassword(passEncoded);
         userRepo.save(userInfo);
-        return new ResponseObj("OK", "Add user completely", userInfo);
+        return "";
     }
 
     public boolean updateUserInfo (UserInfo newUser) {

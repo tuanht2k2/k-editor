@@ -30,7 +30,7 @@ function AccessFile({ componentType }) {
       </h1>
       <div className="p-3">
         <div className="font-semibold mt-2">Nhập ID tài liệu</div>
-        <div className="flex items-center mt-2">
+        <div className="flex items-center mt-4">
           <TextField
             placeholder="Nhập ID tài liệu..."
             value={accessFileFormData.value}

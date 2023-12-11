@@ -645,7 +645,7 @@ function FileExplore({
               variant="outlined"
               color="success"
               style={{ minWidth: "115px" }}
-              className={`ml-2 ${
+              className={`ml-4 ${
                 !createFolderFormData.value.trim()
                   ? `cursor-no-drop`
                   : `cursor-pointer`
@@ -659,6 +659,20 @@ function FileExplore({
                 "Xác nhận"
               )}
             </Button>
+            <div className="flex ml-4">
+              <Button
+                variant="outlined"
+                color="error"
+                onClick={() => {
+                  setCreateFolderFormData((prev) => ({
+                    value: "",
+                    isVisble: false,
+                  }));
+                }}
+              >
+                Hủy
+              </Button>
+            </div>
           </div>
         )}
 
@@ -733,13 +747,9 @@ function FileExplore({
                         fontSize="small"
                       />
                     </CustomIconButtonWrapper>
-                    <span className="italic font-semibold text-sm text-slate-400">{`Di chuyển ${
-                      fileExploreSelectedInMemory.folders.length > 0 &&
-                      `${fileExploreSelectedInMemory.folders.length} thư mục và `
-                    } ${
-                      fileExploreSelectedInMemory.folders.length > 0 &&
-                      `${fileExploreSelectedInMemory.folders.length} tệp `
-                    } `}</span>
+                    <span className="italic text-sm text-slate-400">
+                      Di chuyển
+                    </span>
                   </div>
                 )}
             </div>
@@ -812,13 +822,9 @@ function FileExplore({
                         fontSize="small"
                       />
                     </CustomIconButtonWrapper>
-                    <span className="italic font-semibold text-sm text-slate-400">{`Di chuyển ${
-                      fileExploreSelectedInMemory.folders.length > 0 &&
-                      `${fileExploreSelectedInMemory.folders.length} thư mục và `
-                    } ${
-                      fileExploreSelectedInMemory.folders.length > 0 &&
-                      `${fileExploreSelectedInMemory.folders.length} tệp `
-                    } `}</span>
+                    <span className="italic text-sm text-slate-400">
+                      Di chuyển
+                    </span>
                   </div>
                 )}
             </div>

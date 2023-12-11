@@ -5,26 +5,25 @@ import {
   Box,
   Button,
   Checkbox,
-  FormControlLabel,
   Grid,
+  IconButton,
+  InputAdornment,
   TextField,
 } from "@mui/material";
-import Link from "next/link";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faLock, faUser } from "@fortawesome/free-solid-svg-icons";
-import { CachedOutlined } from "@mui/icons-material";
+import {
+  AccountCircle,
+  CachedOutlined,
+  LockOutlined,
+  Visibility,
+  VisibilityOff,
+} from "@mui/icons-material";
+
 import { instance } from "@/app/utils/axios";
-import { useDispatch, useSelector } from "react-redux";
-import { login } from "@/lib/redux/action/user";
+
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 
-function SignIn() {
-  const dispatch = useDispatch();
-
-  const user = useSelector((state) => state.user);
-
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-
+function Login() {
   const router = useRouter();
 
   const [loginBtnStt, setLoginBtnStt] = useState({
@@ -32,28 +31,45 @@ function SignIn() {
     isSpinning: false,
   });
 
+  const [isPasswordVisible, setIsPasswordVisible] = useState(false);
+
+  const handleTogglePasswordVisible = () => {
+    setIsPasswordVisible((prev) => !prev);
+  };
+
   const [formData, setFormData] = useState({
     username: {
-      label: (
-        <div>
-          <FontAwesomeIcon className="mr-2 text-sky-600" icon={faUser} /> Tên
-          đăng nhập
-        </div>
-      ),
       helperText: "",
       value: "",
       type: "text",
+      placeholder: "Nhập tên tài khoản...",
+      inputProps: {
+        startAdornment: (
+          <InputAdornment position="start">
+            <AccountCircle className="text-sky-500" />
+          </InputAdornment>
+        ),
+      },
     },
     password: {
-      label: (
-        <div>
-          <FontAwesomeIcon className="mr-2 text-sky-600" icon={faLock} /> Mật
-          khẩu
-        </div>
-      ),
       helperText: "",
       value: "",
       type: "password",
+      placeholder: "Nhập mật khẩu...",
+      inputProps: {
+        startAdornment: (
+          <InputAdornment position="start">
+            <LockOutlined className="text-sky-600" />
+          </InputAdornment>
+        ),
+        endAdornment: (
+          <InputAdornment position="start">
+            <IconButton onClick={handleTogglePasswordVisible}>
+              {isPasswordVisible ? <Visibility /> : <VisibilityOff />}
+            </IconButton>
+          </InputAdornment>
+        ),
+      },
     },
   });
 
@@ -147,18 +163,21 @@ function SignIn() {
         localStorage.setItem("username", user.username);
         router.push("/file-explore/home");
       })
-      .catch((err) => {
+      .catch(() => {
+        setFormData((prev) => ({
+          ...prev,
+          username: {
+            ...prev["username"],
+            helperText: "Tài khoản hoặc mật khẩu không chính xác",
+          },
+          password: {
+            ...prev["password"],
+            helperText: "Tài khoản hoặc mật khẩu không chính xác",
+          },
+        }));
         setLoginBtnStt((prev) => ({ ...prev, isSpinning: false }));
       });
   };
-
-  // useEffect(() => {
-  //   if (Object.keys(user).length > 0) {
-  //     router.push("/k-word/word-editor");
-  //   }
-
-  //   return () => {};
-  // }, [user]);
 
   return (
     <div className="w-full h-full bg-slate-100 bg-cover flex justify-center items-center">
@@ -173,32 +192,48 @@ function SignIn() {
           </div>
 
           <form className="w-full flex flex-col justify-center items-center">
-            <Grid container spacing={2} className="w-9/12">
-              {Object.keys(formData).map((field) => (
-                <Grid key={`log-in-form-${field}`} item xs={12}>
-                  <TextField
-                    fullWidth
-                    variant="outlined"
-                    label={formData[field].label}
-                    type={formData[field].type}
-                    helperText={formData[field].helperText}
-                    error={formData[field].helperText ? true : false}
-                    value={formData[field].value}
-                    onFocus={() => {
-                      handleFocusInput(field);
-                    }}
-                    onChange={(e) => {
-                      handleType(field, e.target.value);
-                    }}
-                    onBlur={(e) => {
-                      handleBlurInput(field, e.target.value);
-                    }}
-                    onKeyDown={(e) => {
-                      e.key == "Enter" && handleLogin();
-                    }}
-                  />
-                </Grid>
-              ))}
+            <Grid container spacing={2} className="w-6/12">
+              {Object.keys(formData).map((field) => {
+                console.log(
+                  formData[field].type !== "password"
+                    ? "text"
+                    : isPasswordVisible
+                    ? "text"
+                    : "password"
+                );
+                return (
+                  <Grid key={`log-in-form-${field}`} item xs={12}>
+                    <TextField
+                      fullWidth
+                      variant="outlined"
+                      placeholder={formData[field].placeholder}
+                      InputProps={formData[field].inputProps}
+                      type={
+                        formData[field].type !== "password"
+                          ? "text"
+                          : isPasswordVisible
+                          ? "text"
+                          : "password"
+                      }
+                      helperText={formData[field].helperText}
+                      error={formData[field].helperText ? true : false}
+                      value={formData[field].value}
+                      onFocus={() => {
+                        handleFocusInput(field);
+                      }}
+                      onChange={(e) => {
+                        handleType(field, e.target.value);
+                      }}
+                      onBlur={(e) => {
+                        handleBlurInput(field, e.target.value);
+                      }}
+                      onKeyDown={(e) => {
+                        e.key == "Enter" && handleLogin();
+                      }}
+                    />
+                  </Grid>
+                );
+              })}
             </Grid>
           </form>
           <div className="mt-1">
@@ -224,7 +259,7 @@ function SignIn() {
             </Button>
           </div>
           <Link
-            href={"/sign-up"}
+            href={"/register"}
             className="block mt-2 hover:underline duration-300 text-slate-900"
           >
             <Button color="inherit">Chưa có tài khoản? Đăng ký ngay</Button>
@@ -235,4 +270,4 @@ function SignIn() {
   );
 }
 
-export default SignIn;
+export default Login;

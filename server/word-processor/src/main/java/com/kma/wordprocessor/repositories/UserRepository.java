@@ -12,7 +12,11 @@ import java.util.Optional;
 public interface UserRepository extends MongoRepository<UserInfo, String> {
     Optional<UserInfo> findByUsername(String username);
 
-    Boolean existsUserInfosByUsernameAndEmail(String username, String email);
-
     Optional<UserInfo> getUserByUsername(String username);
+
+    boolean existsUserInfosByUsername(String username);
+
+    boolean existsUserInfosByEmail(String username);
+
+    boolean existsUserInfosByPhoneNumber(String phoneNumber);
 }

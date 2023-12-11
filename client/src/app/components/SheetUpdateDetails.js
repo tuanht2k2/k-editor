@@ -22,10 +22,11 @@ function SheetUpdateDetails({ updateArgsObj, open, onClose }) {
     <HeadlessTippy
       visible
       interactive={open}
+      offset={[-30, 0]}
       appendTo={document.body}
       render={() => (
         <div
-          className={`bg-slate-300/[.40] shadow-md border-2 border-slate-200 h-[calc(100vh-15px)] w-[calc(100vw-1px)] flex items-center justify-center ${
+          className={`bg-slate-300/[.40] shadow-md border-2 border-slate-200 h-[calc(100vh-5px)] w-[calc(100vw-1px)] flex items-center justify-center ${
             open ? " cursor-pointer" : "hidden"
           }`}
         >

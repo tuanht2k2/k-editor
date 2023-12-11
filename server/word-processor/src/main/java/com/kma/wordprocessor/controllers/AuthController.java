@@ -59,10 +59,16 @@ public class AuthController {
     public ResponseEntity<String> register(@RequestBody RegisterDTO registerDTO) {
 
         UserInfo newUser = new UserInfo(registerDTO.getUsername(), registerDTO.getEmail(), registerDTO.getPhoneNumber(),registerDTO.getPassword(),"user");
-        ResponseObj responseObj =  userService.addUser(newUser);
-        if (responseObj.getStatus().equals("OK")) {
-            return new ResponseEntity<>("Account registration successful!", HttpStatus.OK);
+        String status = userService.addUser(newUser);
+        if (status.equals("emailExisted")) {
+            return new ResponseEntity<>("emailExisted", HttpStatus.BAD_REQUEST);
         }
-        return new ResponseEntity<>("Account registration failure!", HttpStatus.BAD_REQUEST);
+        if (status.equals("usernameExisted")) {
+            return new ResponseEntity<>("usernameExisted", HttpStatus.BAD_REQUEST);
+        }
+        if (status.equals("phoneNumberExisted")) {
+            return new ResponseEntity<>("phoneNumberExisted", HttpStatus.BAD_REQUEST);
+        }
+        return new ResponseEntity<>("", HttpStatus.OK);
     }
 }

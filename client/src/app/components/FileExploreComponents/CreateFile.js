@@ -2,12 +2,17 @@ import { useState } from "react";
 import { useSelector } from "react-redux";
 
 import {
+  AccountCircle,
   CachedOutlined,
+  DriveFileRenameOutline,
   GridOn,
+  Lock,
   NoteAddOutlined,
   TextSnippetOutlined,
+  Visibility,
+  VisibilityOff,
 } from "@mui/icons-material";
-import { Button, TextField } from "@mui/material";
+import { Button, IconButton, InputAdornment, TextField } from "@mui/material";
 import { instance } from "@/app/utils/axios";
 import getApiConfig from "@/app/utils/getApiConfig";
 import CustomSnackBar from "../CustomSnackBar";
@@ -16,16 +21,26 @@ function CreateFile({ componentType, fileExplore, handleReload }) {
   const user = useSelector((state) => state.user);
 
   const [createFileFormData, setCreateFileFormData] = useState({
-    value: "",
+    name: "",
+    password: "",
     isBtnSpinning: false,
   });
 
-  const handleCreateFile = (ownerId, parentFolderId, name, format) => {
+  const [isPasswordVisible, setIsPasswordVisible] = useState(false);
+
+  const handleCreateFile = (
+    ownerId,
+    parentFolderId,
+    name,
+    password,
+    format
+  ) => {
     setCreateFileFormData((pre) => ({ ...pre, isBtnSpinning: true }));
     const fileObj = {
       ownerId,
       parentFolderId,
       name,
+      password,
       format,
       data: "",
       createdAt: new Date(),
@@ -36,7 +51,7 @@ function CreateFile({ componentType, fileExplore, handleReload }) {
 
     instance
       .post("/files/create", fileObj, config)
-      .then((res) => {
+      .then(() => {
         handleReload();
         setIsSnackBarVisible(true);
       })
@@ -71,23 +86,30 @@ function CreateFile({ componentType, fileExplore, handleReload }) {
       <div className="p-3">
         <div className="font-semibold mt-2 ">
           <span className="">
-            Đặt tên cho tài liệu của bạn( Tài liệu được tạo mới vào thư mục
+            Tạo tài liệu mới trong thư mục
+            <span className="text-red-500 italic underline">
+              {fileExplore.folders?.folder
+                ? ` ${fileExplore.folders.folder.name}`
+                : " gốc"}{" "}
+            </span>
+            (Mật khẩu cho tài liệu là tùy chọn)
           </span>
-          <span className="underline italic ml-1 text-red-400">
-            {fileExplore.folders?.folder
-              ? ` ${fileExplore.folders.folder.name}`
-              : " gốc"}
-          </span>
-          )
         </div>
         <div className="flex items-center mt-2">
           <TextField
             placeholder="Nhập tên tài liệu..."
-            value={createFileFormData.value}
+            InputProps={{
+              startAdornment: (
+                <InputAdornment position="start">
+                  <DriveFileRenameOutline className="text-sky-600" />
+                </InputAdornment>
+              ),
+            }}
+            value={createFileFormData.name}
             onChange={(e) => {
               setCreateFileFormData((prev) => ({
                 ...prev,
-                value: e.target.value,
+                name: e.target.value,
               }));
             }}
             onKeyDown={(e) => {
@@ -97,25 +119,72 @@ function CreateFile({ componentType, fileExplore, handleReload }) {
                   fileExplore.folders?.folder
                     ? fileExplore.folders.folder._id
                     : "root",
-                  createFileFormData.value,
+                  createFileFormData.name,
+                  createFileFormData.password,
                   componentType == "k-word" ? "txt" : "xlsx"
                 );
             }}
-            error={!createFileFormData.value.trim()}
+            error={!createFileFormData.name.trim()}
           />
+          <div className="ml-2">
+            <TextField
+              placeholder="Nhập mật khẩu tài liệu..."
+              value={createFileFormData.password}
+              type={isPasswordVisible ? "text" : "password"}
+              InputProps={{
+                startAdornment: (
+                  <InputAdornment position="start">
+                    <Lock className="text-sky-600" />
+                  </InputAdornment>
+                ),
+                endAdornment: (
+                  <InputAdornment position="end">
+                    <IconButton
+                      aria-label="toggle password visibility"
+                      onClick={() => {
+                        setIsPasswordVisible((prev) => !prev);
+                      }}
+                      edge="end"
+                    >
+                      {!isPasswordVisible ? <VisibilityOff /> : <Visibility />}
+                    </IconButton>
+                  </InputAdornment>
+                ),
+              }}
+              onChange={(e) => {
+                setCreateFileFormData((prev) => ({
+                  ...prev,
+                  password: e.target.value,
+                }));
+              }}
+              onKeyDown={(e) => {
+                e.key == "Enter" &&
+                  handleCreateFile(
+                    user._id,
+                    fileExplore.folders?.folder
+                      ? fileExplore.folders.folder._id
+                      : "root",
+                    createFileFormData.name,
+                    createFileFormData.password,
+                    componentType == "k-word" ? "txt" : "xlsx"
+                  );
+              }}
+            />
+          </div>
           <div className="ml-3 mr-3">
             <Button
               variant="outlined"
               color={componentType == "k-word" ? "info" : "success"}
               style={{ minWidth: "115px" }}
-              disabled={!createFileFormData.value.trim()}
+              disabled={!createFileFormData.name.trim()}
               onClick={() => {
                 handleCreateFile(
                   user._id,
                   fileExplore.folders?.folder
                     ? fileExplore.folders.folder._id
                     : "root",
-                  createFileFormData.value,
+                  createFileFormData.name,
+                  createFileFormData.password,
                   componentType == "k-word" ? "txt" : "xlsx"
                 );
               }}

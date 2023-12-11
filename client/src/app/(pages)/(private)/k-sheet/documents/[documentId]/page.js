@@ -21,11 +21,19 @@ import { instance } from "@/app/utils/axios";
 import DocumentController from "@/app/components/DocumentController";
 import CustomSkeleton from "@/app/components/CustomSkeleton";
 import Custom404 from "@/app/components/Custom404";
+import AuthFile from "@/app/components/AuthFile";
 
 function SheetEditor() {
   const user = useSelector((state) => state.user);
 
   const [sheet, setSheet] = useState(null);
+
+  const [authForm, setAuthForm] = useState({
+    isVisible: false,
+    password: "",
+    isBtnSpinning: false,
+    error: "",
+  });
 
   // get sheet id
   const splitPathName = usePathname().split("/");
@@ -34,7 +42,12 @@ function SheetEditor() {
   const [stompClient, setStompClient] = useState(null);
   const spreadsheetRef = useRef(null);
 
-  const [isPageLoaded, setIsPageLoaded] = useState(false);
+  const [isSheetChecked, setIsSheetChecked] = useState(false);
+  const [isVaidSheet, setIsValidSheet] = useState(false);
+
+  const handleTypingPassword = (value) => {
+    setAuthForm((prev) => ({ ...prev, password: value, error: "" }));
+  };
 
   const handleAccessFile = () => {
     // save file id to db
@@ -42,20 +55,16 @@ function SheetEditor() {
     instance.post(api, {}, getApiConfig());
   };
 
-  const handleGetSheetData = () => {
+  const handleGetSheetData = async (storedPassword) => {
+    setAuthForm((prev) => ({ ...prev, isBtnSpinning: true }));
     const config = getApiConfig();
     const api = `/files/${sheetId}`;
+    const password = storedPassword || authForm.password;
 
     instance
-      .get(api, config)
+      .post(api, { userId: user._id, filePassword: password }, config)
       .then((res) => {
         const resSheet = res.data;
-
-        if (resSheet.format !== "xlsx") {
-          setIsPageLoaded(true);
-          return;
-        }
-
         // get all spreadsheet update and set it to spreadsheet
         const sheetUpdateHistory = resSheet.sheetUpdateHistory || [];
         sheetUpdateHistory.forEach((update) => {
@@ -65,11 +74,15 @@ function SheetEditor() {
 
         setSheet(resSheet);
         handleAccessFile();
+        localStorage.setItem(sheetId, password || "1");
+        setAuthForm((prev) => ({ ...prev, isVisible: false }));
       })
-      .catch((err) => {
-        console.log(err);
+      .catch(() => {
+        setAuthForm((prev) => ({ ...prev, error: "Mật khẩu không chính xác" }));
       })
-      .finally(() => setIsPageLoaded(true));
+      .finally(() => {
+        setAuthForm((prev) => ({ ...prev, isBtnSpinning: false }));
+      });
   };
 
   // subcribe websocket
@@ -92,13 +105,6 @@ function SheetEditor() {
     };
   }, [sheet]);
 
-  useEffect(() => {
-    if (Object.keys(user).length == 0) {
-      return;
-    }
-    handleGetSheetData();
-  }, [user]);
-
   const handleActionComplete = (args) => {
     if (!sheet) return;
 
@@ -112,13 +118,55 @@ function SheetEditor() {
     stompClient.send(`/app/documents/k-sheet/${sheet._id}`, {}, data);
   };
 
+  // check is sheet id correct
+  const handleCheckSheetExisted = () => {
+    const api = `/files/${sheetId}/format=xlsx/check-file-existed`;
+    instance
+      .get(api, getApiConfig())
+      .then(() => {
+        const storedPassword = localStorage.getItem(sheetId);
+        if (storedPassword) {
+          handleGetSheetData(storedPassword).then(() => {
+            setIsValidSheet(true);
+          });
+        } else {
+          // if local storage does not store sheet password
+          setAuthForm((prev) => ({ ...prev, isVisible: true }));
+        }
+      })
+      .catch(() => {
+        //if sheet is not existed
+        setIsValidSheet(false);
+        setIsSheetChecked(true);
+      });
+  };
+
+  useEffect(() => {
+    if (Object.keys(user).length == 0) {
+      return;
+    }
+    handleCheckSheetExisted();
+  }, [user]);
+
   return (
     <Fragment>
-      {!isPageLoaded ? (
-        <CustomSkeleton />
+      {authForm.isVisible ? (
+        <AuthFile
+          fileId={sheetId}
+          handleTypingPassword={handleTypingPassword}
+          passwordValue={authForm.password}
+          isBtnSpinning={authForm.isBtnSpinning}
+          error={authForm.error}
+          handleAccessFile={() => handleGetSheetData("")}
+        />
+      ) : !isVaidSheet && isSheetChecked ? (
+        <Custom404 />
       ) : sheet ? (
         <div className="h-[calc(100%-84px)]">
-          <DocumentController file={sheet} reload={handleGetSheetData} />
+          <DocumentController
+            file={sheet}
+            reload={() => handleGetSheetData("")}
+          />
           <SpreadsheetComponent
             ref={spreadsheetRef}
             actionComplete={(args) => {
@@ -128,9 +176,7 @@ function SheetEditor() {
             allowInsert={false}
           />
         </div>
-      ) : (
-        <Custom404 />
-      )}
+      ) : null}
     </Fragment>
   );
 }

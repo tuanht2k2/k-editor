@@ -11,6 +11,7 @@ import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -30,6 +31,9 @@ public class FileService {
     @Autowired
     MongoTemplate mongoTemplate;
 
+    @Autowired
+    PasswordEncoder passwordEncoder;
+
     public File getFileById(String fileId){
         Optional<File> optionalFile = fileRepository.findById(fileId);
         if (optionalFile.isPresent()) {
@@ -40,6 +44,13 @@ public class FileService {
 
     public File createFile (File file) {
         return fileRepository.save(file);
+    }
+
+    public boolean isFileExisted(String fileId, String format) {
+        Optional<File> optionalFile = fileRepository.findById(fileId);
+        if (optionalFile.isEmpty()) return false;
+        File file = optionalFile.get();
+        return file.getFormat().equals(format);
     }
 
     public List<File> getSubFiles (String ownerId ,String parentFolderId, String format) {
@@ -75,6 +86,15 @@ public class FileService {
         }
 
         return fileList;
+    }
+
+    public boolean isCorrectPassword(String fileId, String rawPassword) {
+        Optional<File> optionalFile = fileRepository.findById(fileId);
+        if (optionalFile.isEmpty()) return true;
+        File file = optionalFile.get();
+        String password = file.getPassword();
+        if (password.isEmpty() || passwordEncoder.matches(rawPassword, password)) return true;
+        return false;
     }
 
     public void moveFile(String fileId, String newParentFolderId){

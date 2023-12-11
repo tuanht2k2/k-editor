@@ -8,16 +8,17 @@ import getApiConfig from "@/app/utils/getApiConfig";
 import ClassicEditor from "@ckeditor/ckeditor5-build-classic";
 import { CKEditor } from "@ckeditor/ckeditor5-react";
 
-import Stomp, { over } from "stompjs";
+import { over } from "stompjs";
 import SockJS from "sockjs-client";
 
-import { Fragment, useEffect, useRef, useState } from "react";
+import { Fragment, useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { usePathname } from "next/navigation";
 import { debounce } from "lodash";
 
 import DocumentController from "@/app/components/DocumentController";
 import CustomSkeleton from "@/app/components/CustomSkeleton";
+import AuthFile from "@/app/components/AuthFile";
 
 function WordEditor() {
   const user = useSelector((state) => state.user);
@@ -26,39 +27,48 @@ function WordEditor() {
 
   const [stompClient, setStompClient] = useState(null);
   const [document, setDocument] = useState(null);
-  const [isPageLoaded, setIsPageLoaded] = useState(false);
+  const [isDocumentChecked, setIsDocumentChecked] = useState(false);
+  const [isVaidDocument, setIsValidDocument] = useState(false);
+
+  const [authForm, setAuthForm] = useState({
+    isVisible: false,
+    password: "",
+    isBtnSpinning: false,
+    error: "",
+  });
 
   const handleAccessDocument = () => {
     // save file id to db
     const api = `/users/${user._id}/access-file/${documentId}`;
-    console.log(api);
     instance.post(api, {}, getApiConfig());
   };
 
-  const handleGetDocumentData = () => {
-    const config = getApiConfig();
-    const api = `/files/${documentId}`;
-
-    instance
-      .get(api, config)
-      .then((res) => {
-        const resDocument = res.data;
-        if (resDocument.format !== "txt") {
-          setIsPageLoaded(true);
-          return;
-        }
-        handleAccessDocument();
-        setDocument(resDocument);
-      })
-      .catch((err) => {
-        console.log(err);
-      })
-      .finally(() => setIsPageLoaded(true));
+  const handleTypingPassword = (value) => {
+    setAuthForm((prev) => ({ ...prev, password: value, error: "" }));
   };
 
-  useEffect(() => {
-    Object.keys(user).length > 0 && handleGetDocumentData();
-  }, [user]);
+  const handleGetDocumentData = async (storedPassword) => {
+    setAuthForm((prev) => ({ ...prev, isBtnSpinning: true }));
+    const config = getApiConfig();
+    const api = `/files/${documentId}`;
+    const password = storedPassword || authForm.password;
+
+    instance
+      .post(api, { userId: user._id, filePassword: password }, config)
+      .then((res) => {
+        const resDocument = res.data;
+        handleAccessDocument();
+        setDocument(resDocument);
+        !storedPassword && localStorage.setItem(documentId, authForm.password);
+        setAuthForm((prev) => ({ ...prev, isVisible: false }));
+      })
+      .catch(() => {
+        setAuthForm((prev) => ({ ...prev, error: "Mật khẩu không chính xác" }));
+      })
+      .finally(() => {
+        setAuthForm((prev) => ({ ...prev, isBtnSpinning: false }));
+      });
+  };
 
   useEffect(() => {
     if (!document) return;
@@ -72,7 +82,6 @@ function WordEditor() {
           ...prev,
           data: action.data,
         }));
-        console.log("vai ca dai ", action);
       });
     });
 
@@ -108,13 +117,52 @@ function WordEditor() {
     );
   };
 
+  // check is document id correct
+  const handleCheckDocumentExisted = () => {
+    const api = `/files/${documentId}/format=txt/check-file-existed`;
+    instance
+      .get(api, getApiConfig())
+      .then(() => {
+        const storedPassword = localStorage.getItem(documentId);
+        if (storedPassword) {
+          handleGetDocumentData(storedPassword).then(() => {
+            setIsValidDocument(true);
+          });
+        } else {
+          setAuthForm((prev) => ({ ...prev, isVisible: true }));
+        }
+      })
+      .catch(() => {
+        setIsValidDocument(false);
+        setIsDocumentChecked(true);
+      });
+  };
+
+  useEffect(() => {
+    if (Object.keys(user).length == 0) {
+      return;
+    }
+    handleCheckDocumentExisted();
+  }, [user]);
   return (
     <Fragment>
-      {isPageLoaded && !document ? (
+      {authForm.isVisible ? (
+        <AuthFile
+          fileId={documentId}
+          handleTypingPassword={handleTypingPassword}
+          passwordValue={authForm.password}
+          isBtnSpinning={authForm.isBtnSpinning}
+          error={authForm.error}
+          handleAccessFile={() => handleGetDocumentData("")}
+        />
+      ) : !isVaidDocument && isDocumentChecked ? (
         <Custom404 />
       ) : document ? (
         <div className="h-full p-5">
-          <DocumentController file={document} reload={handleGetDocumentData} />
+          <DocumentController
+            file={document}
+            reload={() => handleGetDocumentData("")}
+          />
           <CKEditor
             editor={ClassicEditor}
             onChange={(event, editor) => {
@@ -125,9 +173,7 @@ function WordEditor() {
             data={document.data || ""}
           />
         </div>
-      ) : (
-        <CustomSkeleton />
-      )}
+      ) : null}
     </Fragment>
   );
 }
