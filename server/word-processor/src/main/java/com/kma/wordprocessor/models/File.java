@@ -1,6 +1,6 @@
 package com.kma.wordprocessor.models;
 
-import com.kma.wordprocessor.dto.KSheet.SheetUpdateDTO;
+import com.kma.wordprocessor.dto.KSheet.SheetUpdateGroupDTO;
 import com.kma.wordprocessor.dto.KWord.DocumentActionUpdateDTO;
 import lombok.*;
 import org.springframework.data.mongodb.core.mapping.Document;
@@ -42,5 +42,5 @@ public class File {
     private List<DocumentActionUpdateDTO> updateHistory;
 
     // for k-sheet
-    private List<SheetUpdateDTO> sheetUpdateHistory;
+    private List<SheetUpdateGroupDTO> sheetUpdateHistory;
 }

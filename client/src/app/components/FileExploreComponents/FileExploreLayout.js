@@ -87,26 +87,28 @@ function FileExploreLayout({ componentType }) {
   return (
     <Fragment>
       {isAvailbleFolder ? (
-        <div className="p-6">
-          {componentType !== "file-explore" ? (
-            <div className="w-full flex">
-              <CreateFile
-                fileExplore={fileExplore}
-                componentType={componentType}
-                handleReload={handleGetFolderData}
-              />
-              <div className="ml-4">
-                <AccessFile componentType={componentType} />
-              </div>
-            </div>
-          ) : (
-            <div className="w-full flex">
-              <AccessFile componentType={"k-word"} />
-              <div className="ml-4">
-                <AccessFile componentType={"k-sheet"} />
-              </div>
-            </div>
-          )}
+        <div className="p-2">
+          <div className="w-full flex flex-col md:flex-row">
+            {componentType !== "file-explore" ? (
+              <Fragment>
+                <CreateFile
+                  fileExplore={fileExplore}
+                  componentType={componentType}
+                  handleReload={handleGetFolderData}
+                />
+                <div className="mt-4 md:m-0 md:ml-4">
+                  <AccessFile componentType={componentType} />
+                </div>
+              </Fragment>
+            ) : (
+              <Fragment>
+                <AccessFile componentType={"k-word"} />
+                <div className="mt-4 md:m-0 md:ml-4">
+                  <AccessFile componentType={"k-sheet"} />
+                </div>
+              </Fragment>
+            )}
+          </div>
 
           <FileExplore
             componentType={componentType}

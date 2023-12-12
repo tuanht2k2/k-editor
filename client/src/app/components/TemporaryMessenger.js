@@ -27,14 +27,10 @@ import SpeechRecognition, {
   useSpeechRecognition,
 } from "react-speech-recognition";
 import RegularTippy from "./RegularTippy";
-import { instance } from "../utils/axios";
-import getApiConfig from "../utils/getApiConfig";
-import CustomSkeleton from "./CustomSkeleton";
 
 function TemporaryMessenger({ document, hideWindowFn }) {
   const [messageContent, setMessageContent] = useState("");
   const [messenger, setMessages] = useState([]);
-  const [isMessengerLoaded, setIsMessengerLoaded] = useState(false);
 
   const messengerRef = useRef(null);
 
@@ -109,7 +105,6 @@ function TemporaryMessenger({ document, hideWindowFn }) {
     setMessageContent("");
     messageTextFieldRef.current?.focus();
 
-    console.log(`/app/documents/${document._id}/messenger`);
     stompClient.send(
       `/app/documents/${document._id}/messenger`,
       {},
@@ -146,7 +141,9 @@ function TemporaryMessenger({ document, hideWindowFn }) {
       {/* messenger */}
       <div
         className={`max-h-[calc(100vh-350px)] ${
-          messenger.messages?.length > 0 &&
+          messenger.messages?.find(
+            (message) => message.type != "notification"
+          ) &&
           "border-b-2  border-t-2 border-l-2 border-slate-200 rounded-md overflow-y-scroll"
         }`}
         ref={messengerRef}

@@ -19,7 +19,6 @@ import { SpreadsheetComponent } from "@syncfusion/ej2-react-spreadsheet";
 import getApiConfig from "@/app/utils/getApiConfig";
 import { instance } from "@/app/utils/axios";
 import DocumentController from "@/app/components/DocumentController";
-import CustomSkeleton from "@/app/components/CustomSkeleton";
 import Custom404 from "@/app/components/Custom404";
 import AuthFile from "@/app/components/AuthFile";
 
@@ -67,9 +66,11 @@ function SheetEditor() {
         const resSheet = res.data;
         // get all spreadsheet update and set it to spreadsheet
         const sheetUpdateHistory = resSheet.sheetUpdateHistory || [];
-        sheetUpdateHistory.forEach((update) => {
-          const updateArgsObj = JSON.parse(update.updateArgsObj);
-          spreadsheetRef.current?.updateAction(updateArgsObj);
+        sheetUpdateHistory.forEach((updateGroup) => {
+          updateGroup.actions?.forEach((jsonUpdate) => {
+            const update = JSON.parse(jsonUpdate);
+            spreadsheetRef.current?.updateAction(update);
+          });
         });
 
         setSheet(resSheet);
@@ -93,9 +94,12 @@ function SheetEditor() {
     const client = over(socket);
     client.connect({}, () => {
       client.subscribe(`/documents/k-sheet/${sheet._id}`, (res) => {
-        const receivedJsonUpdate = JSON.parse(res.body);
-        const updateArgsObj = JSON.parse(receivedJsonUpdate.updateArgsObj);
-        spreadsheetRef.current.updateAction(updateArgsObj);
+        const updateGroups = JSON.parse(res.body);
+
+        const lastUpdateGroup = updateGroups.pop();
+        const lastJsonUpdate = lastUpdateGroup.actions.pop();
+        const lastUpdate = JSON.parse(lastJsonUpdate);
+        spreadsheetRef.current.updateAction(lastUpdate);
       });
     });
     setStompClient(client);
@@ -111,7 +115,7 @@ function SheetEditor() {
     const sheetUpdateAction = {
       sheetId: sheetId,
       userId: user._id,
-      updateArgsObj: JSON.stringify(args),
+      action: JSON.stringify(args),
       time: new Date(),
     };
     const data = JSON.stringify(sheetUpdateAction);

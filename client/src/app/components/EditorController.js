@@ -48,11 +48,6 @@ function EditorController({ handleSaveFile }) {
     setIsTranscriptVisible(false);
   };
 
-  // check micro
-  // if (!browserSupportsSpeechRecognition) {
-  //   console.log("Browser does not support speech recognition.");
-  // }
-
   // Download collapse
   const [anchorEl, setAnchorEl] = useState(null);
 

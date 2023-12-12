@@ -1,6 +1,7 @@
 package com.kma.wordprocessor.services;
 
 import com.kma.wordprocessor.dto.KSheet.SheetUpdateDTO;
+import com.kma.wordprocessor.dto.KSheet.SheetUpdateGroupDTO;
 import com.kma.wordprocessor.dto.KWord.DocumentActionUpdateDTO;
 import com.kma.wordprocessor.models.File;
 import com.kma.wordprocessor.models.UserInfo;
@@ -88,6 +89,7 @@ public class FileService {
         return fileList;
     }
 
+    // check password
     public boolean isCorrectPassword(String fileId, String rawPassword) {
         Optional<File> optionalFile = fileRepository.findById(fileId);
         if (optionalFile.isEmpty()) return true;
@@ -120,6 +122,7 @@ public class FileService {
         }
     }
 
+    // when delete folder, we need to delete all subs file
     public void deleteFileByParentFolderId(String parentFolderId) {
 
         Query getFileIdQuery = new Query(Criteria.where("parentFolderId").is(parentFolderId));
@@ -133,6 +136,7 @@ public class FileService {
         mongoTemplate.remove(query, "files"); // delete in files document
     }
 
+    // update when user edited txt file
     public void updateTxtFile (DocumentActionUpdateDTO txtDocumentActionUpdateDTO) {
         Optional<File> optionalFile = fileRepository.findById(txtDocumentActionUpdateDTO.getDocumentId());
         if (!optionalFile.isPresent()) return;
@@ -155,15 +159,38 @@ public class FileService {
         fileRepository.save(file);
     }
 
-    public void updateSheetFile(SheetUpdateDTO sheetUpdateDTO) {
+    // update when user edited xlsx file
+    public List<SheetUpdateGroupDTO> updateSheetFile(SheetUpdateDTO sheetUpdateDTO) {
         Optional<File> optionalSheet = fileRepository.findById(sheetUpdateDTO.getSheetId());
-        if (!optionalSheet.isPresent()) return;
+        if (optionalSheet.isEmpty()) return null;
 
         File sheet = optionalSheet.get();
-        List<SheetUpdateDTO> sheetUpdateHistory = sheet.getSheetUpdateHistory() == null ? new ArrayList<SheetUpdateDTO>() : sheet.getSheetUpdateHistory();
-        sheetUpdateHistory.add(sheetUpdateDTO);
+        List<SheetUpdateGroupDTO> sheetUpdateHistory = sheet.getSheetUpdateHistory() == null ? new ArrayList<SheetUpdateGroupDTO>() : sheet.getSheetUpdateHistory();
+
+        List<String> newUpdates = new ArrayList<String>();
+
+        if (sheetUpdateHistory.isEmpty()) {
+            // update list, contains updateArgsObj
+            newUpdates.add(sheetUpdateDTO.getAction());
+            SheetUpdateGroupDTO newSheetUpdateGroup = new SheetUpdateGroupDTO(sheetUpdateDTO.getSheetId(),sheetUpdateDTO.getUserId(), newUpdates, sheetUpdateDTO.getTime());
+            sheetUpdateHistory.add(newSheetUpdateGroup);
+        } else {
+            SheetUpdateGroupDTO lastUpdate = sheetUpdateHistory.get(sheetUpdateHistory.size()-1);
+            if (lastUpdate.getUserId().equals(sheetUpdateDTO.getUserId())) {
+                List<String> lastUpdateActions = lastUpdate.getActions();
+                lastUpdateActions.add(sheetUpdateDTO.getAction());
+                lastUpdate.setActions(lastUpdateActions);
+                lastUpdate.setTime(sheetUpdateDTO.getTime());
+                sheetUpdateHistory.set(sheetUpdateHistory.size()-1, lastUpdate);
+            } else {
+                newUpdates.add(sheetUpdateDTO.getAction());
+                SheetUpdateGroupDTO newSheetUpdateGroup = new SheetUpdateGroupDTO(sheetUpdateDTO.getSheetId(),sheetUpdateDTO.getUserId(), newUpdates, sheetUpdateDTO.getTime());
+                sheetUpdateHistory.add(newSheetUpdateGroup);
+            }
+        }
         sheet.setSheetUpdateHistory(sheetUpdateHistory);
         fileRepository.save(sheet);
+        return sheetUpdateHistory;
     }
 
     public String editFileName(String fileId, String newName) {

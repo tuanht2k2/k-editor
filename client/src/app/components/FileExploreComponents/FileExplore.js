@@ -20,7 +20,7 @@ import {
   WestOutlined,
 } from "@mui/icons-material";
 
-import { Breadcrumbs, Button, TextField } from "@mui/material";
+import { Breadcrumbs, Button, IconButton, TextField } from "@mui/material";
 import { DataGrid } from "@mui/x-data-grid";
 
 import dateFormat from "dateformat";
@@ -577,8 +577,7 @@ function FileExplore({
               <WestOutlined />
             </Link>
           )}
-          <button
-            className="rounded-full p-1 hover:bg-slate-100"
+          <IconButton
             title="Tạo thư mục"
             onClick={() => {
               setCreateFolderFormData((prev) => ({
@@ -588,14 +587,14 @@ function FileExplore({
             }}
           >
             <CreateNewFolderOutlined />
-          </button>
-          <button
-            className="ml-4 rounded-full p-1 hover:bg-slate-100"
+          </IconButton>
+          <IconButton
+            className="ml-4"
             title="Làm mới"
             onClick={handleGetFolderData}
           >
             <CachedOutlined />
-          </button>
+          </IconButton>
         </div>
       </div>
       <Breadcrumbs

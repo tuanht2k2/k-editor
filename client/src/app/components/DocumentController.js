@@ -16,12 +16,15 @@ import {
 import parser from "html-react-parser";
 
 import RegularTippy from "./RegularTippy";
-import { Fragment, useEffect, useRef, useState } from "react";
+import { Fragment, useEffect, useState } from "react";
+
+import { over } from "stompjs";
+import SockJS from "sockjs-client";
 
 import getApiConfig from "../utils/getApiConfig";
 import { instance } from "../utils/axios";
 
-import { Alert, Snackbar } from "@mui/material";
+import { Alert, IconButton, Snackbar } from "@mui/material";
 import dateFormat from "dateformat";
 
 import SheetUpdateDetails from "./SheetUpdateDetails";
@@ -44,7 +47,7 @@ function DocumentController({ file, reload }) {
   // specific update id which is visibled
   const [updateHistoryTippy, setUpdateHistoryTippy] = useState({
     indexVisible: null,
-    updateArgsObj: null, // for sheet
+    updates: null, // for sheet
   });
 
   // share file
@@ -71,6 +74,28 @@ function DocumentController({ file, reload }) {
       .catch((err) => console.log(err))
       .finally(() => setIsPageLoaded(true));
   };
+
+  useEffect(() => {
+    if (!file) return;
+    const socket = new SockJS("http://localhost:8080/ws", getApiConfig());
+    const client = over(socket);
+    client.connect({}, () => {
+      client.subscribe(
+        `/documents/${file.format == "txt" ? "k-word" : "k-sheet"}/${file._id}`,
+        (res) => {
+          const resUpdates = JSON.parse(res.body);
+          setUpdateHistoryData((prev) => ({
+            ...prev,
+            data: [...resUpdates.reverse()],
+          }));
+        }
+      );
+    });
+
+    return () => {
+      client.connected && client.disconnect();
+    };
+  }, [file]);
 
   const handleCollapseUpdateHistory = () => {
     setUpdateHistoryData((prev) => ({
@@ -104,7 +129,7 @@ function DocumentController({ file, reload }) {
   }, [updateHistoryData.isVisble]);
 
   return (
-    <div className="pt-4 pb-4 flex items-center justify-between">
+    <div className="pt-1 pb-4 flex items-center justify-between">
       <div className="flex items-center">
         {file.format === "txt" ? (
           <TextSnippetOutlined className="text-sky-600" />
@@ -155,20 +180,20 @@ function DocumentController({ file, reload }) {
                     Lịch sử chỉnh sửa
                   </div>
                   <div className="flex items-center">
-                    <button
-                      className="ml-5 p-1 flex items-center justify-center rounded-full duration-300 cursor-pointer bg-slate-50 hover:bg-slate-200"
+                    <IconButton
+                      className="ml-5"
                       onClick={reload}
                       title="Tải lại"
                     >
                       <CachedOutlined className="text-sky-500 text-md" />
-                    </button>
-                    <button
-                      className="ml-5 p-1 flex items-center justify-center rounded-full duration-300 cursor-pointer bg-slate-50 hover:bg-slate-200"
+                    </IconButton>
+                    <IconButton
+                      className="ml-5"
                       onClick={handleCollapseUpdateHistory}
                       title="Đóng"
                     >
                       <CloseOutlined className="text-slate-400 text-md" />
-                    </button>
+                    </IconButton>
                   </div>
                 </div>
                 {updateHistoryData.data.length > 0 && users ? (
@@ -197,7 +222,7 @@ function DocumentController({ file, reload }) {
                               src={"/assets/images/profile_image.png"}
                             />
                             <span className="ml-2 text-sm font-semibold text-slate-600">
-                              {user.username}
+                              {user?.username}
                             </span>
                             <span className="ml-2 text-sm font-semibold italic text-slate-400">{`đã sửa đổi ${dateFormat(
                               update.time
@@ -235,7 +260,7 @@ function DocumentController({ file, reload }) {
                                       <RemoveOutlined className="text-slate-400 text-xs" />
                                     </button>
                                   </div>
-                                  {/* update details */}
+                                  {/*txt update details */}
                                   <div className="">
                                     <div className="grid grid-cols-2 gap-4">
                                       <div className="flex mt-2 mb-2">
@@ -276,10 +301,10 @@ function DocumentController({ file, reload }) {
                               }  `}
                               onClick={() =>
                                 setUpdateHistoryTippy((prev) => ({
-                                  updateArgsObj:
+                                  updates:
                                     file.format === "txt"
                                       ? null
-                                      : JSON.parse(update.updateArgsObj),
+                                      : update.actions,
                                   indexVisible:
                                     file.format === "txt"
                                       ? prev.indexVisible == index
@@ -338,12 +363,12 @@ function DocumentController({ file, reload }) {
           <SheetUpdateDetails
             open={updateHistoryTippy.indexVisible === "sheet"}
             onClose={() => {
-              setUpdateHistoryTippy((prev) => ({
+              setUpdateHistoryTippy(() => ({
                 indexVisible: null,
                 updateArgsObj: null,
               }));
             }}
-            updateArgsObj={updateHistoryTippy.updateArgsObj}
+            updates={updateHistoryTippy.updates}
           />
         </div>
 

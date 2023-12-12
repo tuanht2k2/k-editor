@@ -2,12 +2,14 @@ import { useState } from "react";
 import { useSelector } from "react-redux";
 
 import {
+  AbcOutlined,
   AccountCircle,
   CachedOutlined,
   DriveFileRenameOutline,
   GridOn,
   Lock,
   NoteAddOutlined,
+  PasswordOutlined,
   TextSnippetOutlined,
   Visibility,
   VisibilityOff,
@@ -54,6 +56,7 @@ function CreateFile({ componentType, fileExplore, handleReload }) {
       .then(() => {
         handleReload();
         setIsSnackBarVisible(true);
+        setCreateFileFormData((prev) => ({ ...prev, name: "", password: "" }));
       })
       .catch((err) => {
         console.log(err);
@@ -79,62 +82,78 @@ function CreateFile({ componentType, fileExplore, handleReload }) {
         content={"Tạo file thành công!"}
         severity={"success"}
       />
-      <h1 className="font-bold flex items-center text-2xl">
+      <h1 className="font-bold flex items-center text-xl md:text-2xl">
         <span className="mr-2">Tạo tài liệu mới</span>
         <NoteAddOutlined color="primary" />
       </h1>
-      <div className="p-3">
+      <div className="p-1 md:p-3">
         <div className="font-semibold mt-2 ">
-          <span className="">
+          <span className="text-sm sm:text-base">
             Tạo tài liệu mới trong thư mục
             <span className="text-red-500 italic underline">
               {fileExplore.folders?.folder
                 ? ` ${fileExplore.folders.folder.name}`
                 : " gốc"}{" "}
             </span>
-            (Mật khẩu cho tài liệu là tùy chọn)
+            (Mật khẩu là tùy chọn)
           </span>
         </div>
-        <div className="flex items-center mt-2">
-          <TextField
-            placeholder="Nhập tên tài liệu..."
-            InputProps={{
-              startAdornment: (
-                <InputAdornment position="start">
-                  <DriveFileRenameOutline className="text-sky-600" />
-                </InputAdornment>
-              ),
-            }}
-            value={createFileFormData.name}
-            onChange={(e) => {
-              setCreateFileFormData((prev) => ({
-                ...prev,
-                name: e.target.value,
-              }));
-            }}
-            onKeyDown={(e) => {
-              e.key == "Enter" &&
-                handleCreateFile(
-                  user._id,
-                  fileExplore.folders?.folder
-                    ? fileExplore.folders.folder._id
-                    : "root",
-                  createFileFormData.name,
-                  createFileFormData.password,
-                  componentType == "k-word" ? "txt" : "xlsx"
-                );
-            }}
-            error={!createFileFormData.name.trim()}
-          />
-          <div className="ml-2">
+        <div className="flex flex-col mt-2">
+          <div className="w-full sm:w-4/6 md:w-5/6 lg:w-4/6">
             <TextField
+              fullWidth
+              placeholder="Nhập tên tài liệu..."
+              InputProps={{
+                startAdornment: (
+                  <InputAdornment position="start">
+                    <AbcOutlined
+                      className={`${
+                        componentType == "k-word"
+                          ? "text-sky-600"
+                          : "text-green-600"
+                      }`}
+                    />
+                  </InputAdornment>
+                ),
+              }}
+              value={createFileFormData.name}
+              onChange={(e) => {
+                setCreateFileFormData((prev) => ({
+                  ...prev,
+                  name: e.target.value,
+                }));
+              }}
+              onKeyDown={(e) => {
+                e.key == "Enter" &&
+                  handleCreateFile(
+                    user._id,
+                    fileExplore.folders?.folder
+                      ? fileExplore.folders.folder._id
+                      : "root",
+                    createFileFormData.name,
+                    createFileFormData.password,
+                    componentType == "k-word" ? "txt" : "xlsx"
+                  );
+              }}
+              error={!createFileFormData.name.trim()}
+            />
+          </div>
+          <div className="mt-2 w-full sm:w-4/6 md:w-5/6 lg:w-4/6">
+            <TextField
+              fullWidth
               placeholder="Nhập mật khẩu tài liệu..."
               value={createFileFormData.password}
               type={isPasswordVisible ? "text" : "password"}
               InputProps={{
                 startAdornment: (
                   <InputAdornment position="start">
-                    <Lock className="text-sky-600" />
+                    <PasswordOutlined
+                      className={`${
+                        componentType == "k-word"
+                          ? "text-sky-600"
+                          : "text-green-600"
+                      }`}
+                    />
                   </InputAdornment>
                 ),
                 endAdornment: (
@@ -171,45 +190,49 @@ function CreateFile({ componentType, fileExplore, handleReload }) {
               }}
             />
           </div>
-          <div className="ml-3 mr-3">
-            <Button
-              variant="outlined"
-              color={componentType == "k-word" ? "info" : "success"}
-              style={{ minWidth: "115px" }}
-              disabled={!createFileFormData.name.trim()}
-              onClick={() => {
-                handleCreateFile(
-                  user._id,
-                  fileExplore.folders?.folder
-                    ? fileExplore.folders.folder._id
-                    : "root",
-                  createFileFormData.name,
-                  createFileFormData.password,
-                  componentType == "k-word" ? "txt" : "xlsx"
-                );
-              }}
-            >
-              {createFileFormData.isBtnSpinning ? (
-                <CachedOutlined className="animate-spin" />
+          <div className="flex items-center mt-3">
+            <div className="mr-3">
+              <Button
+                variant="outlined"
+                color={componentType == "k-word" ? "info" : "success"}
+                style={{ minWidth: "115px" }}
+                disabled={!createFileFormData.name.trim()}
+                onClick={() => {
+                  handleCreateFile(
+                    user._id,
+                    fileExplore.folders?.folder
+                      ? fileExplore.folders.folder._id
+                      : "root",
+                    createFileFormData.name,
+                    createFileFormData.password,
+                    componentType == "k-word" ? "txt" : "xlsx"
+                  );
+                }}
+              >
+                {createFileFormData.isBtnSpinning ? (
+                  <CachedOutlined className="animate-spin" />
+                ) : (
+                  "Tạo mới"
+                )}
+              </Button>
+            </div>
+            <div className="flex h-full items-center">
+              {componentType == "k-sheet" ? (
+                <div className="flex items-center">
+                  <GridOn className="text-green-700" />
+                  <span className="text-md font-semibold text-green-700">
+                    .xlsx
+                  </span>
+                </div>
               ) : (
-                "Tạo mới"
+                <div className="flex items-center">
+                  <TextSnippetOutlined className="text-sky-600" />
+                  <span className="text-md font-semibold text-sky-600">
+                    .txt
+                  </span>
+                </div>
               )}
-            </Button>
-          </div>
-          <div className="flex h-full">
-            {componentType == "k-sheet" ? (
-              <div className="flex items-center">
-                <GridOn className="text-green-700" />
-                <span className="text-md font-semibold text-green-700">
-                  .xlsx
-                </span>
-              </div>
-            ) : (
-              <div className="flex items-center">
-                <TextSnippetOutlined className="text-sky-600" />
-                <span className="text-md font-semibold text-sky-600">.txt</span>
-              </div>
-            )}
+            </div>
           </div>
         </div>
       </div>

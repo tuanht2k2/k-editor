@@ -8,14 +8,17 @@ import { useEffect, useRef } from "react";
 import { SpreadsheetComponent } from "@syncfusion/ej2-react-spreadsheet";
 
 import HeadlessTippy from "@tippyjs/react/headless";
-import { ClearOutlined, RemoveOutlined } from "@mui/icons-material";
+import { ClearOutlined } from "@mui/icons-material";
 
-function SheetUpdateDetails({ updateArgsObj, open, onClose }) {
+function SheetUpdateDetails({ updates, open, onClose }) {
   const spreadsheetRef = useRef(null);
 
   useEffect(() => {
-    if (!open || !updateArgsObj) return;
-    spreadsheetRef.current?.updateAction(updateArgsObj);
+    if (!open || !updates) return;
+    updates.forEach((jsonUpdate) => {
+      const update = JSON.parse(jsonUpdate);
+      spreadsheetRef.current?.updateAction(update);
+    });
   }, [open]);
 
   return (
@@ -27,7 +30,7 @@ function SheetUpdateDetails({ updateArgsObj, open, onClose }) {
       render={() => (
         <div
           className={`bg-slate-300/[.40] shadow-md border-2 border-slate-200 h-[calc(100vh-5px)] w-[calc(100vw-1px)] flex items-center justify-center ${
-            open ? " cursor-pointer" : "hidden"
+            open ? "" : "hidden"
           }`}
         >
           <div className="flex flex-col items-end">

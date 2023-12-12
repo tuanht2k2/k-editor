@@ -36,6 +36,7 @@ import {
   DriveFileMoveOutlined,
   FilterFramesOutlined,
   GridOnOutlined,
+  LogoutOutlined,
   TextSnippetOutlined,
 } from "@mui/icons-material";
 import { usePathname, useRouter } from "next/navigation";
@@ -226,75 +227,78 @@ function RootLayout({ children }) {
         <Box sx={{ display: "flex", height: "100%" }}>
           {/* Header */}
           <AppBar position="fixed" open={drawerOpen} color="inherit">
-            <Toolbar>
+            <Toolbar className="pr-0 sm:pt-3 sm:pb-3 md:pt-1 md:pb-1">
               <IconButton
                 color="default"
                 aria-label="open drawer"
                 onClick={handleDrawerOpen}
                 edge="start"
                 sx={{
-                  marginRight: 5,
                   ...(drawerOpen && { display: "none" }),
                 }}
+                className="mr-1 sm:mr-3"
               >
                 <MenuIcon />
               </IconButton>
-              <header className="w-full h-full pl-5 pr-5 flex justify-between items-center ">
-                <Link href={"/"} className="font-bold text-sky-600 text-2xl">
+              <header className="w-full h-full flex justify-between items-center md:pl-5 md:pr-5">
+                <Link
+                  href={"/file-explore/home"}
+                  className="font-bold text-sky-600 md:text-2xl sm:text-xl"
+                >
                   K-EDITOR
                 </Link>
                 <div className="flex items-center">
                   <Grid container>
-                    <Grid children>
-                      <Button variant="outlined" color="success">
-                        <Link
-                          className="flex items-center justify-center [&>*]:text-green-800"
-                          href={"/word-editor"}
-                        >
-                          <FontAwesomeIcon
-                            icon={faSquarePlus}
-                            height={15}
-                            width={15}
-                          />
-                          <div className="ml-2 ">Tạo tệp mới</div>
-                        </Link>
-                      </Button>
-                    </Grid>
-                    <Grid children marginLeft={2}>
+                    <Grid
+                      children
+                      marginLeft={2}
+                      className="hidden sm:flex items-center"
+                    >
                       <Button variant="outlined">
                         <Link
                           className="flex items-center justify-center [&>*]:text-sky-600"
-                          href={"/myfile"}
+                          href={"/file-explore/home"}
                         >
                           <FontAwesomeIcon
                             icon={faFile}
                             height={15}
                             width={15}
                           />
-                          <div className="ml-2">Tệp của tôi</div>
+                          <div className="ml-2">Quản lý tài nguyên</div>
                         </Link>
                       </Button>
                     </Grid>
                     <Grid children marginLeft={2}>
-                      {/* Dropdown user avatar */}
+                      {/* user avatar */}
                       {!!user ? (
-                        <div className="">
-                          <div
-                            id="demo-positioned-button"
-                            className="rounded-full cursor-pointer border-2 border-sky-400"
-                            aria-controls={
-                              open ? "demo-positioned-menu" : undefined
-                            }
-                            aria-haspopup="true"
-                            aria-expanded={open ? "true" : undefined}
-                            onClick={handleClick}
+                        <div className="flex items-center">
+                          <Link
+                            href={"/account"}
+                            className="flex items-center border-2 border-slate-200 rounded-md p-1 mr-1 sm:p-2 sm:mr-2"
                           >
-                            <img
-                              className="w-9 h-9 rounded-full object-cover"
-                              src={"/assets/images/profile_image.png"}
-                            />
-                          </div>
-                          <Menu
+                            <span className="font-medium text-slate-500 text-sm sm:text-lg md:text-lg mr-2 ">
+                              {user.username}
+                            </span>
+                            <div
+                              id="demo-positioned-button"
+                              className="rounded-full cursor-pointer border-2 border-sky-400 w-9 h-9 overflow-hidden"
+                              aria-controls={
+                                open ? "demo-positioned-menu" : undefined
+                              }
+                              aria-haspopup="true"
+                              aria-expanded={open ? "true" : undefined}
+                              // onClick={handleClick}
+                            >
+                              <img
+                                className="w-full h-full object-cover"
+                                src={"/assets/images/profile_image.png"}
+                              />
+                            </div>
+                          </Link>
+                          <IconButton onClick={handleLogOut}>
+                            <LogoutOutlined className="text-orange-500" />
+                          </IconButton>
+                          {/* <Menu
                             id="demo-positioned-menu"
                             aria-labelledby="demo-positioned-button"
                             anchorEl={anchorEl}
@@ -346,10 +350,10 @@ function RootLayout({ children }) {
                                 <div className="ml-4">Đăng xuất</div>
                               </div>
                             </MenuItem>
-                          </Menu>
+                          </Menu> */}
                         </div>
                       ) : (
-                        <Link href={"/sign-in"}>
+                        <Link href={"/login"}>
                           <Button variant="contained" color="info">
                             <FontAwesomeIcon icon={faSignIn} />
                             <div className=" ml-2 text-white">Đăng nhập</div>
@@ -366,7 +370,7 @@ function RootLayout({ children }) {
           {/* Sidebar */}
           <Drawer variant="permanent" open={drawerOpen}>
             <DrawerHeader>
-              <div className="w-full pl-4 text-left font-bold">Danh mục</div>
+              <div className="w-full text-left font-bold">Danh mục</div>
               <IconButton onClick={handleDrawerClose}>
                 {theme.direction === "rtl" ? (
                   <ChevronRightIcon />
@@ -432,14 +436,9 @@ function RootLayout({ children }) {
           </Drawer>
 
           {/* Main */}
-          <Box
-            component="main"
-            sx={{ flexGrow: 1, flex: 1, overflowX: "hidden" }}
-            marginTop={8}
-            padding={2}
-          >
+          <div className=" w-full mt-16  sm:p-2 sm:mt-20 overflow-x-hidden">
             {children}
-          </Box>
+          </div>
         </Box>
       ) : (
         <div className="w-ful h-full flex items-center justify-center">

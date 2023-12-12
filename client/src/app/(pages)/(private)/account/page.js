@@ -261,7 +261,11 @@ function Account() {
       case "password":
         return value.length >= 6 ? "" : "Mật khẩu phải dài tối thiểu 6 ký tự";
       case "newPassword":
-        return value.length >= 6 ? "" : "Mật khẩu phải dài tối thiểu 6 ký tự";
+        return value == settingsData.password.value
+          ? "Mật khẩu mới phải khác mật khẩu cũ"
+          : value.length >= 6
+          ? ""
+          : "Mật khẩu phải dài tối thiểu 6 ký tự";
       case "reNewPassword":
         return value.length < 6
           ? "Mật khẩu phải dài tối thiểu 6 ký tự"
@@ -356,7 +360,6 @@ function Account() {
   };
 
   const handlePreviewProfileImage = (image) => {
-    console.log(image);
     const reader = new FileReader();
 
     reader.onload = (e) => {
@@ -377,7 +380,7 @@ function Account() {
   return (
     <Fragment>
       {Object.keys(user).length > 0 ? (
-        <div className="p-8 bg-slate-100 flex justify-center rounded-lg border-2 border-sky-300 min-h-full">
+        <div className="bg-slate-100 rounded-lg border-2 border-sky-300 min-h-full flex flex-col p-2 sm:pt-7 sm:pl-20 sm:pr-20 md:pl-0 md:pr-0 md:justify-center md:flex-row">
           {/* SnackBar */}
           <CustomSnackBar
             content={snackBarData.content}
@@ -465,7 +468,7 @@ function Account() {
                   </div>
                 )}
               </div>
-              <div className="border-t-2 border-t-slate-200 p-5 pl-20 pr-20">
+              <div className="border-t-2 border-t-slate-200 p-5 md:pl-10 md:pr-10 lg:pl-20 lg:pr-20">
                 {Object.keys(settingsData).map((settingKey, index) => {
                   const setting = settingsData[settingKey];
                   return (
@@ -506,11 +509,11 @@ function Account() {
             </div>
           </div>
           {/* advanced and security settings */}
-          <div className="ml-24 border-2 border-sky-400 rounded-lg bg-white flex flex-col items-center">
-            <header className="p-5 pl-20 pr-20 font-semibold text-lg flex justify-center items-center">
+          <div className="border-2 border-sky-400 rounded-lg bg-white mt-5 flex flex-col items-center md:mt-0 md:ml-3 lg:ml-24">
+            <header className="p-5 font-semibold text-lg flex justify-center items-center sm:pl-20 sm:pr-20 ">
               Bảo mật và Nâng cao
             </header>
-            <form className="border-t-2 border-t-slate-200 p-5 pl-20 pr-20">
+            <form className="border-t-2 border-t-slate-200 p-5 md:p-0 lg:pl-20 lg:pr-20">
               {Object.keys(settingsData).map((settingKey, index) => {
                 const setting = settingsData[settingKey];
                 return (

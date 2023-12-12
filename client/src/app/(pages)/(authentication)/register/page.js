@@ -1,19 +1,14 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import {
-  Box,
   Button,
-  Checkbox,
-  FormControlLabel,
   Grid,
   IconButton,
   InputAdornment,
   TextField,
 } from "@mui/material";
 import Link from "next/link";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faLock, faUser } from "@fortawesome/free-solid-svg-icons";
 import {
   AccountCircle,
   CachedOutlined,
@@ -24,16 +19,13 @@ import {
   VisibilityOff,
 } from "@mui/icons-material";
 import { instance } from "@/app/utils/axios";
-import { useDispatch, useSelector } from "react-redux";
 import CustomSnackBar from "@/app/components/CustomSnackBar";
 
 function Register() {
-  const user = useSelector((state) => state.user);
-
   // snackbar
   const [snackBarData, setSnackBarData] = useState({
     content: "",
-    open: "false",
+    open: false,
     severity: "",
   });
 
@@ -260,13 +252,16 @@ function Register() {
         }}
       />
 
-      <div className="flex justify-center items-center pl-32 pr-32 sm:pl-10 sm:pr-10">
+      <div className="flex justify-center items-center pl-5 pr-5 sm:pl-10 sm:pr-10 md:w-8/12">
         <div className="border-sky-300 border-2 flex-1 rounded-2xl p-2 bg-white text-center">
-          <div className="w-full p-5 text-3xl font-bold text-slate-700 border-b-2 border-slate-200 font-mono">
+          <div className="w-fullfont-bold text-slate-700 border-b-2 border-slate-200 font-semibold p-2 text-xl sm:p-5 sm:text-3xl ">
             Tạo tài khoản
           </div>
           <div className="mb-4 w-full p-2 flex justify-center items-center ">
-            <img className="w-20 h-20" src={"/assets/images/logo.png"} />
+            <img
+              className="w-14 h-14 sm:w-20 sm:h-20"
+              src={"/assets/images/logo.png"}
+            />
             <h1 className="font-semibold text-2xl font-mono p-2">K-Editor</h1>
           </div>
 
@@ -274,7 +269,7 @@ function Register() {
             <Grid
               container
               spacing={2}
-              className="lg:w-4/12 md:w-6/12 sm:w-6/12"
+              className="w-10/12 sm:w-6/12 md:w-7/12 lg:w-5/12 "
             >
               {Object.keys(formData).map((field) => (
                 <Grid key={`log-in-form-${field}`} item xs={12}>

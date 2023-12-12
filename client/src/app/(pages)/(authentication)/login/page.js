@@ -181,26 +181,24 @@ function Login() {
 
   return (
     <div className="w-full h-full bg-slate-100 bg-cover flex justify-center items-center">
-      <div className="p-10 flex justify-center items-center">
-        <div className="border-sky-300 border-2 flex-1 rounded-2xl p-7 bg-white text-center">
-          <div className="w-full p-5 text-3xl font-bold text-slate-700 border-b-2 border-slate-200 font-mono">
+      <div className="p-5 pt-1 sm:p-10 flex justify-center items-center">
+        <div className="border-sky-300 border-2 flex-1 rounded-2xl  bg-white text-center  p-3 pt-0 md:p-7">
+          <div className="w-full p-5 font-semibold text-slate-700 border-b-2 border-slate-200 text-xl sm:text-3xl">
             Đăng nhập
           </div>
           <div className="mb-4 w-full p-2 flex justify-center items-center ">
-            <img className="w-20 h-20" src={"/assets/images/logo.png"} />
-            <h1 className="font-semibold text-2xl font-mono p-2">K-Editor</h1>
+            <img
+              className="w-14 h-14 sm:w-20 sm:h-20"
+              src={"/assets/images/logo.png"}
+            />
+            <h1 className="font-semibold font-mono text-xl sm:p-2 sm:text-2xl">
+              K-Editor
+            </h1>
           </div>
 
           <form className="w-full flex flex-col justify-center items-center">
-            <Grid container spacing={2} className="w-6/12">
+            <Grid container spacing={2} className="w-full sm:w-6/12">
               {Object.keys(formData).map((field) => {
-                console.log(
-                  formData[field].type !== "password"
-                    ? "text"
-                    : isPasswordVisible
-                    ? "text"
-                    : "password"
-                );
                 return (
                   <Grid key={`log-in-form-${field}`} item xs={12}>
                     <TextField

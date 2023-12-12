@@ -17,7 +17,6 @@ import { usePathname } from "next/navigation";
 import { debounce } from "lodash";
 
 import DocumentController from "@/app/components/DocumentController";
-import CustomSkeleton from "@/app/components/CustomSkeleton";
 import AuthFile from "@/app/components/AuthFile";
 
 function WordEditor() {
@@ -158,7 +157,7 @@ function WordEditor() {
       ) : !isVaidDocument && isDocumentChecked ? (
         <Custom404 />
       ) : document ? (
-        <div className="h-full p-5">
+        <div className="h-full p-5 pt-0">
           <DocumentController
             file={document}
             reload={() => handleGetDocumentData("")}
