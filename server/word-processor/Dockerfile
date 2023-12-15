@@ -1,4 +1,4 @@
-FROM k-editor:17-jdk-alpine
+FROM nginx:stable-alpine3.17-slim
 VOLUME /tmp
 COPY target/*.jar app.jar
 ENTRYPOINT ["java","-jar","/app.jar"]
