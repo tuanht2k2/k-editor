@@ -250,7 +250,7 @@ function RootLayout({ children }) {
                 <div className="flex items-center">
                   <Grid container>
                     <Grid
-                      children
+                      item
                       marginLeft={2}
                       className="hidden sm:flex items-center"
                     >
@@ -268,7 +268,7 @@ function RootLayout({ children }) {
                         </Link>
                       </Button>
                     </Grid>
-                    <Grid children marginLeft={2}>
+                    <Grid item marginLeft={2}>
                       {/* user avatar */}
                       {!!user ? (
                         <div className="flex items-center">
