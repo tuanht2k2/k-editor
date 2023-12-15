@@ -6,6 +6,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
 import org.springframework.data.mongodb.core.mapping.MongoId;
 
+import java.net.URL;
 import java.util.List;
 
 @Getter
@@ -25,7 +26,7 @@ public class UserInfo {
 
     private String phoneNumber;
 
-    private String profileImage;
+    private URL profileImage;
 
     private String roles;
 

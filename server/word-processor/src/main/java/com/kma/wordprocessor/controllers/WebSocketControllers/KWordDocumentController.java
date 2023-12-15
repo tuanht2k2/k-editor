@@ -10,6 +10,8 @@ import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.CrossOrigin;
 
+import java.util.List;
+
 @Controller
 @CrossOrigin(origins = "*")
 public class KWordDocumentController {
@@ -19,8 +21,7 @@ public class KWordDocumentController {
 
     @MessageMapping("/documents/k-word/{documentId}")
     @SendTo("/documents/k-word/{documentId}")
-    DocumentActionUpdateDTO updateDocument (@Payload DocumentActionUpdateDTO actionObj, @DestinationVariable String documentId){
-        fileService.updateTxtFile(actionObj);
-        return actionObj;
+    List<DocumentActionUpdateDTO> updateDocument (@Payload DocumentActionUpdateDTO actionObj, @DestinationVariable String documentId){
+        return fileService.updateTxtFile(actionObj);
     }
 }

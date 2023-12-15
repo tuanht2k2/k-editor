@@ -137,9 +137,9 @@ public class FileService {
     }
 
     // update when user edited txt file
-    public void updateTxtFile (DocumentActionUpdateDTO txtDocumentActionUpdateDTO) {
+    public List<DocumentActionUpdateDTO> updateTxtFile (DocumentActionUpdateDTO txtDocumentActionUpdateDTO) {
         Optional<File> optionalFile = fileRepository.findById(txtDocumentActionUpdateDTO.getDocumentId());
-        if (!optionalFile.isPresent()) return;
+        if (optionalFile.isEmpty()) return null;
         File file = optionalFile.get();
         file.setData(txtDocumentActionUpdateDTO.getData());
 
@@ -148,8 +148,8 @@ public class FileService {
             updateHistory.add(txtDocumentActionUpdateDTO);
         } else {
             DocumentActionUpdateDTO lastUpdate = updateHistory.get(updateHistory.size() - 1);
-            if (lastUpdate.getData().equals(txtDocumentActionUpdateDTO.getData())) {return;}
-            if (lastUpdate.getUserId().equals(txtDocumentActionUpdateDTO.getUserId())) {
+            if (lastUpdate.getData().equals(txtDocumentActionUpdateDTO.getData())) {return updateHistory;}
+            if (lastUpdate.getUser().get_id().equals(txtDocumentActionUpdateDTO.getUser().get_id())) {
                 updateHistory.set(updateHistory.size() - 1, txtDocumentActionUpdateDTO);
             } else {
                 updateHistory.add(txtDocumentActionUpdateDTO);
@@ -157,6 +157,7 @@ public class FileService {
         }
         file.setUpdateHistory(updateHistory);
         fileRepository.save(file);
+        return updateHistory;
     }
 
     // update when user edited xlsx file
@@ -172,11 +173,11 @@ public class FileService {
         if (sheetUpdateHistory.isEmpty()) {
             // update list, contains updateArgsObj
             newUpdates.add(sheetUpdateDTO.getAction());
-            SheetUpdateGroupDTO newSheetUpdateGroup = new SheetUpdateGroupDTO(sheetUpdateDTO.getSheetId(),sheetUpdateDTO.getUserId(), newUpdates, sheetUpdateDTO.getTime());
+            SheetUpdateGroupDTO newSheetUpdateGroup = new SheetUpdateGroupDTO(sheetUpdateDTO.getSheetId(),sheetUpdateDTO.getUser(), newUpdates, sheetUpdateDTO.getTime());
             sheetUpdateHistory.add(newSheetUpdateGroup);
         } else {
             SheetUpdateGroupDTO lastUpdate = sheetUpdateHistory.get(sheetUpdateHistory.size()-1);
-            if (lastUpdate.getUserId().equals(sheetUpdateDTO.getUserId())) {
+            if (lastUpdate.getUser().get_id().equals(sheetUpdateDTO.getUser().get_id())) {
                 List<String> lastUpdateActions = lastUpdate.getActions();
                 lastUpdateActions.add(sheetUpdateDTO.getAction());
                 lastUpdate.setActions(lastUpdateActions);
@@ -184,7 +185,7 @@ public class FileService {
                 sheetUpdateHistory.set(sheetUpdateHistory.size()-1, lastUpdate);
             } else {
                 newUpdates.add(sheetUpdateDTO.getAction());
-                SheetUpdateGroupDTO newSheetUpdateGroup = new SheetUpdateGroupDTO(sheetUpdateDTO.getSheetId(),sheetUpdateDTO.getUserId(), newUpdates, sheetUpdateDTO.getTime());
+                SheetUpdateGroupDTO newSheetUpdateGroup = new SheetUpdateGroupDTO(sheetUpdateDTO.getSheetId(),sheetUpdateDTO.getUser(), newUpdates, sheetUpdateDTO.getTime());
                 sheetUpdateHistory.add(newSheetUpdateGroup);
             }
         }

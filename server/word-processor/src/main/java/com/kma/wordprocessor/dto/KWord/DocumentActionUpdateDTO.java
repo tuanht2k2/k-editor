@@ -1,5 +1,6 @@
 package com.kma.wordprocessor.dto.KWord;
 
+import com.kma.wordprocessor.models.UserInfo;
 import lombok.Data;
 
 import java.util.Date;
@@ -8,7 +9,7 @@ import java.util.Date;
 public class DocumentActionUpdateDTO {
     private String documentId;
 
-    private String userId;
+    private UserInfo user;
 
     private String data;
 

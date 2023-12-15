@@ -61,8 +61,9 @@ function TemporaryMessenger({ document, hideWindowFn }) {
         });
 
         // send notification to server: client connected
+
         const notificationMessage = {
-          author: user,
+          user: user,
           content: "Client join room!",
           time: new Date(),
           type: "notification",
@@ -96,7 +97,7 @@ function TemporaryMessenger({ document, hideWindowFn }) {
     if (!stompClient) return;
 
     const messageObj = {
-      author: user,
+      user: user,
       content: messageContent,
       time: new Date(),
       type: "normal",
@@ -149,39 +150,44 @@ function TemporaryMessenger({ document, hideWindowFn }) {
         ref={messengerRef}
       >
         {messenger.messages?.length > 0 ? (
-          <ul className="pl-4 pr-4 pb-4 flex flex-col">
-            {messenger.messages.map(
-              (message, index) =>
+          <ul className="pl-1 pr-1 pb-4 flex flex-col">
+            {messenger.messages.map((message, index) => {
+              return (
                 message.type === "normal" && (
                   <li
                     key={`message ${index}`}
-                    className={`mt-4 flex items-start ${
-                      user._id == message.author._id &&
-                      "self-end flex-row-reverse"
+                    className={`mt-4 flex flex-col items-start ${
+                      user._id == message.user._id &&
+                      "self-end flex-row-reverse items-end"
                     }`}
+                    title="Nhấp đúp vào để sao chép nội dung"
+                    onDoubleClick={() => {
+                      navigator.clipboard.writeText(message.content);
+                      setIsCopySnackBarVisible(true);
+                    }}
                   >
                     <div
-                      className={`flex flex-col border-2 border-slate-200 rounded-2xl p-1 ${
-                        user._id == message.author._id
-                          ? "items-end"
-                          : "items-start"
+                      className={`flex rounded-2xl items-center mb-1 border-t-2 border-sky-300 ${
+                        user._id == message.user._id
+                          ? "border-l-2"
+                          : "border-r-2"
                       }`}
                     >
-                      <span className="font-semibold text-xs text-slate-500">
-                        {message.author.username}
+                      <span className="font-semibold text-xs text-slate-500 p-1">
+                        {message.user.username}
                       </span>
                       <img
-                        className="object-cover h-6"
+                        className="mt-1 object-cover h-8 w-8 rounded-full"
                         src={
-                          message.author.avtImage
-                            ? message.author.avtImage
+                          message.user.profileImage
+                            ? message.user.profileImage
                             : "/assets/images/profile_image.png"
                         }
                       />
                     </div>
                     <div
-                      className={`ml-2 mr-2 border-2 border-slate-100 h-full rounded-2xl p-2 ${
-                        user._id == message.author._id && "bg-slate-50"
+                      className={`border-2 border-slate-100 h-full rounded-2xl p-2 ${
+                        user._id == message.user._id && "bg-slate-50"
                       }`}
                     >
                       <div className="text-sm">{message.content}</div>
@@ -189,20 +195,6 @@ function TemporaryMessenger({ document, hideWindowFn }) {
                         {dateFormat(message.time)}
                       </div>
                     </div>
-                    <button
-                      className="p-1 rounded-full duration-150 flex justify-center align-center hover:bg-slate-200 hover:[&>*]:text-sky-400 self-center"
-                      title="Sao chép vào bộ nhớ tạm"
-                      onClick={() => {
-                        navigator.clipboard.writeText(message.content);
-                        setIsCopySnackBarVisible(true);
-                      }}
-                    >
-                      <ContentCopyOutlined
-                        className="text-sky-600"
-                        style={{ fontSize: "15px" }}
-                      />
-                    </button>
-                    {/* SnackBar */}
                     <Snackbar
                       open={isCopySnackBarVisible}
                       autoHideDuration={3000}
@@ -223,7 +215,8 @@ function TemporaryMessenger({ document, hideWindowFn }) {
                     </Snackbar>
                   </li>
                 )
-            )}
+              );
+            })}
           </ul>
         ) : (
           <div className="font-semibold p-3 [&>*]:text-slate-400 flex items-center justify-center">

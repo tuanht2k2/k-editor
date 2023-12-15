@@ -1,5 +1,6 @@
 package com.kma.wordprocessor.dto.KSheet;
 
+import com.kma.wordprocessor.models.UserInfo;
 import lombok.Data;
 
 import java.util.Date;
@@ -8,7 +9,7 @@ import java.util.Date;
 public class SheetUpdateDTO {
     private String sheetId;
 
-    private String userId;
+    private UserInfo user;
 
     private String action;
 

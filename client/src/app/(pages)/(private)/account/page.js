@@ -109,8 +109,6 @@ function Account() {
     useState(false);
 
   const handleEditSettingsForm = (settingKey, field, value) => {
-    const edittingObj = {};
-
     setSettingsData((prev) => ({
       ...prev,
       [settingKey]: { ...prev[settingKey], [field]: value },
@@ -360,6 +358,7 @@ function Account() {
   };
 
   const handlePreviewProfileImage = (image) => {
+    if (!image) return;
     const reader = new FileReader();
 
     reader.onload = (e) => {
@@ -401,9 +400,11 @@ function Account() {
                 <div className="border-2 border-sky-600 mb-5 w-28 h-28 rounded-full overflow-hidden">
                   <img
                     src={
-                      previewProfileImagePath ||
-                      user.profileImage ||
-                      "assets/images/profile_image.png"
+                      previewProfileImagePath
+                        ? previewProfileImagePath
+                        : user.profileImage
+                        ? user.profileImage
+                        : "assets/images/profile_image.png"
                     }
                     className="object-cover w-full h-full"
                   />
@@ -428,10 +429,11 @@ function Account() {
                     multiple={false}
                     onChange={(e) => {
                       const file = e.target.files[0];
+                      if (!file) return;
                       setProfileImage(file);
                       handlePreviewProfileImage(file);
                     }}
-                    accept="image/png, image/jpeg"
+                    accept="image/jpeg image/png"
                   />
                 </div>
                 {previewProfileImagePath && (

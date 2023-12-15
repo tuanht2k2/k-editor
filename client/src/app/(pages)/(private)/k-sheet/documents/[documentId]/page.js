@@ -18,8 +18,9 @@ import { SpreadsheetComponent } from "@syncfusion/ej2-react-spreadsheet";
 
 import getApiConfig from "@/app/utils/getApiConfig";
 import { instance } from "@/app/utils/axios";
-import DocumentController from "@/app/components/DocumentController";
+
 import Custom404 from "@/app/components/Custom404";
+import DocumentController from "@/app/components/FileController/DocumentController";
 import AuthFile from "@/app/components/AuthFile";
 
 function SheetEditor() {
@@ -114,7 +115,7 @@ function SheetEditor() {
 
     const sheetUpdateAction = {
       sheetId: sheetId,
-      userId: user._id,
+      user: user,
       action: JSON.stringify(args),
       time: new Date(),
     };
@@ -145,6 +146,9 @@ function SheetEditor() {
       });
   };
 
+  // save
+  const handleSave = () => {};
+
   useEffect(() => {
     if (Object.keys(user).length == 0) {
       return;
@@ -167,17 +171,17 @@ function SheetEditor() {
         <Custom404 />
       ) : sheet ? (
         <div className="h-[calc(100%-84px)]">
-          <DocumentController
-            file={sheet}
-            reload={() => handleGetSheetData("")}
-          />
+          <DocumentController file={sheet} sheetFn={handleSave} />
           <SpreadsheetComponent
             ref={spreadsheetRef}
             actionComplete={(args) => {
               handleActionComplete(args);
             }}
-            allowOpen={true}
+            // allowOpen={true}
+            // openUrl="https://services.syncfusion.com/react/production/api/spreadsheet/open"
             allowInsert={false}
+            allowSave={true}
+            saveUrl="https://services.syncfusion.com/react/production/api/spreadsheet/save"
           />
         </div>
       ) : null}

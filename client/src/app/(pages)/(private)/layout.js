@@ -240,10 +240,10 @@ function RootLayout({ children }) {
               >
                 <MenuIcon />
               </IconButton>
-              <header className="w-full h-full flex justify-between items-center md:pl-5 md:pr-5">
+              <header className="w-full h-full flex justify-between items-center sm:pl-3 sm:pr-3 md:pl-5 md:pr-5">
                 <Link
                   href={"/file-explore/home"}
-                  className="font-bold text-sky-600 md:text-2xl sm:text-xl"
+                  className="font-bold text-sky-600 text-sm md:text-2xl sm:text-xl sm:p-1 rounded-xl border-b-2 border-sky-500"
                 >
                   K-EDITOR
                 </Link>
@@ -274,9 +274,9 @@ function RootLayout({ children }) {
                         <div className="flex items-center">
                           <Link
                             href={"/account"}
-                            className="flex items-center border-2 border-slate-200 rounded-md p-1 mr-1 sm:p-2 sm:mr-2"
+                            className="flex items-center border-2 border-slate-200 rounded-md sm:p-2 sm:mr-2"
                           >
-                            <span className="font-medium text-slate-500 text-sm sm:text-lg md:text-lg mr-2 ">
+                            <span className="font-medium text-slate-500 text-sm sm:text-base mr-2 ">
                               {user.username}
                             </span>
                             <div
@@ -291,7 +291,11 @@ function RootLayout({ children }) {
                             >
                               <img
                                 className="w-full h-full object-cover"
-                                src={"/assets/images/profile_image.png"}
+                                src={
+                                  user.profileImage
+                                    ? user.profileImage
+                                    : "/assets/images/profile_image.png"
+                                }
                               />
                             </div>
                           </Link>

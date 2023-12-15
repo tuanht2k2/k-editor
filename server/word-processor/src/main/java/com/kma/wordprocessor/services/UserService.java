@@ -15,8 +15,10 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -93,8 +95,7 @@ public class UserService {
 
         InputStream fileStream = image.getInputStream();
         String fileName = image.getOriginalFilename();
-
-        String fileUrl = firebaseStorageService.uploadFile(fileStream, "user-profile-image",fileName);
+        URL fileUrl = firebaseStorageService.uploadFile(fileStream, "user-profile-image",fileName);
 
         UserInfo userInfo = optionalUserInfo.get();
         userInfo.setProfileImage(fileUrl);

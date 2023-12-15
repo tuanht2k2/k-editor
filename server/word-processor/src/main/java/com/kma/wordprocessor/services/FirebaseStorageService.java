@@ -10,13 +10,15 @@ import org.springframework.stereotype.Service;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URL;
+import java.util.concurrent.TimeUnit;
 
 @Service
 public class FirebaseStorageService {
     @Value("${firebase.storage.bucketName}")
     private String bucketName;
 
-    public String uploadFile(InputStream fileStream, String folderName ,String fileName) {
+    public URL uploadFile(InputStream fileStream, String folderName ,String fileName) {
         try {
             Storage storage = StorageOptions.newBuilder()
                     .setCredentials(GoogleCredentials.fromStream(new FileInputStream("C:\\KMA\\TTCS\\word-processor\\server\\word-processor\\src\\main\\java\\com\\kma\\wordprocessor\\assets\\serviceAccountKey.json")))
@@ -25,11 +27,8 @@ public class FirebaseStorageService {
 
             BlobId blobId = BlobId.of(bucketName, fileName);
             BlobInfo blobInfo = BlobInfo.newBuilder(blobId).build();
-
             Blob blob = storage.create(blobInfo, fileStream);
-
-            // Return the public URL of the uploaded file
-            return blob.getMediaLink();
+            return blob.signUrl(1000, TimeUnit.DAYS);
         } catch (IOException e) {
             e.printStackTrace();
             // Handle exception
