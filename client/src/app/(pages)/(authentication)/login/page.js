@@ -196,44 +196,46 @@ function Login() {
             </h1>
           </div>
 
-          <form className="w-full flex flex-col justify-center items-center">
-            <Grid container spacing={2} className="w-full sm:w-6/12">
-              {Object.keys(formData).map((field) => {
-                return (
-                  <Grid key={`log-in-form-${field}`} item xs={12}>
-                    <TextField
-                      fullWidth
-                      variant="outlined"
-                      placeholder={formData[field].placeholder}
-                      InputProps={formData[field].inputProps}
-                      type={
-                        formData[field].type !== "password"
-                          ? "text"
-                          : isPasswordVisible
-                          ? "text"
-                          : "password"
-                      }
-                      helperText={formData[field].helperText}
-                      error={formData[field].helperText ? true : false}
-                      value={formData[field].value}
-                      onFocus={() => {
-                        handleFocusInput(field);
-                      }}
-                      onChange={(e) => {
-                        handleType(field, e.target.value);
-                      }}
-                      onBlur={(e) => {
-                        handleBlurInput(field, e.target.value);
-                      }}
-                      onKeyDown={(e) => {
-                        e.key == "Enter" && handleLogin();
-                      }}
-                    />
-                  </Grid>
-                );
-              })}
-            </Grid>
-          </form>
+          <div className="w-full flex items-center justify-center">
+            <form className="flex flex-col justify-center items-center w-full sm:w-6/12">
+              <Grid container spacing={2} className="">
+                {Object.keys(formData).map((field) => {
+                  return (
+                    <Grid key={`log-in-form-${field}`} item xs={12}>
+                      <TextField
+                        fullWidth
+                        variant="outlined"
+                        placeholder={formData[field].placeholder}
+                        InputProps={formData[field].inputProps}
+                        type={
+                          formData[field].type !== "password"
+                            ? "text"
+                            : isPasswordVisible
+                            ? "text"
+                            : "password"
+                        }
+                        helperText={formData[field].helperText}
+                        error={formData[field].helperText ? true : false}
+                        value={formData[field].value}
+                        onFocus={() => {
+                          handleFocusInput(field);
+                        }}
+                        onChange={(e) => {
+                          handleType(field, e.target.value);
+                        }}
+                        onBlur={(e) => {
+                          handleBlurInput(field, e.target.value);
+                        }}
+                        onKeyDown={(e) => {
+                          e.key == "Enter" && handleLogin();
+                        }}
+                      />
+                    </Grid>
+                  );
+                })}
+              </Grid>
+            </form>
+          </div>
           <div className="mt-1">
             <Box marginBottom={1}>
               <Checkbox id="remember" />

@@ -111,44 +111,44 @@ const Drawer = styled(MuiDrawer, {
   }),
 }));
 
-const navbarMenu = [
-  // { type: "link", title: "Trang chủ", icon: <HomeOutlined />, href: "/home" },
-  {
-    type: "link",
-    title: "Tệp của tôi",
-    icon: <DriveFileMoveOutlined />,
-    href: "/file-explore/home",
-  },
-  { type: "devider" },
-  // {
-  //   type: "link",
-  //   title: "K-Board",
-  //   icon: <FilterFramesOutlined />,
-  //   href: "/k-board/documents/sjfjf",
-  // },
-  {
-    type: "link",
-    title: "K-Word",
-    icon: <TextSnippetOutlined />,
-    href: "/k-word/home",
-  },
-  {
-    type: "link",
-    title: "K-Sheet",
-    icon: <GridOnOutlined />,
-    href: "/k-sheet/home",
-  },
-  { type: "devider" },
-  {
-    type: "link",
-    title: "Tài khoản",
-    icon: <AccountCircleOutlined />,
-    href: "/account",
-  },
-  { type: "devider" },
-];
-
 function RootLayout({ children }) {
+  const navbarMenu = [
+    // { type: "link", title: "Trang chủ", icon: <HomeOutlined />, href: "/home" },
+    {
+      type: "link",
+      title: "Tệp của tôi",
+      icon: <DriveFileMoveOutlined />,
+      href: "/file-explore/home",
+    },
+    { type: "devider" },
+    // {
+    //   type: "link",
+    //   title: "K-Board",
+    //   icon: <FilterFramesOutlined />,
+    //   href: "/k-board/documents/sjfjf",
+    // },
+    {
+      type: "link",
+      title: "K-Word",
+      icon: <TextSnippetOutlined />,
+      href: "/k-word/home",
+    },
+    {
+      type: "link",
+      title: "K-Sheet",
+      icon: <GridOnOutlined />,
+      href: "/k-sheet/home",
+    },
+    { type: "devider" },
+    {
+      type: "link",
+      title: "Tài khoản",
+      icon: <AccountCircleOutlined />,
+      href: "/account",
+    },
+    { type: "devider" },
+  ];
+
   const router = useRouter();
 
   const user = useSelector((state) => state.user);
@@ -409,7 +409,7 @@ function RootLayout({ children }) {
                           }}
                           className={
                             item.href.split("/")[1] === currentPath
-                              ? "text-sky-500"
+                              ? " [&>*]:text-sky-500"
                               : null
                           }
                         >

@@ -252,7 +252,7 @@ function Register() {
         }}
       />
 
-      <div className="flex justify-center items-center pl-5 pr-5 sm:pl-10 sm:pr-10 md:w-8/12">
+      <div className="flex justify-center items-center p-5 sm:pl-10 sm:pr-10 md:w-8/12">
         <div className="border-sky-300 border-2 flex-1 rounded-2xl p-2 bg-white text-center">
           <div className="w-fullfont-bold text-slate-700 border-b-2 border-slate-200 font-semibold p-2 text-xl sm:p-5 sm:text-3xl ">
             Tạo tài khoản
@@ -265,46 +265,44 @@ function Register() {
             <h1 className="font-semibold text-2xl font-mono p-2">K-Editor</h1>
           </div>
 
-          <form className="w-full flex flex-col justify-center items-center">
-            <Grid
-              container
-              spacing={2}
-              className="w-10/12 sm:w-6/12 md:w-7/12 lg:w-5/12 "
-            >
-              {Object.keys(formData).map((field) => (
-                <Grid key={`log-in-form-${field}`} item xs={12}>
-                  <TextField
-                    fullWidth
-                    variant="outlined"
-                    placeholder={formData[field].placeholder}
-                    InputProps={formData[field].inputProps}
-                    type={
-                      formData[field].type !== "password"
-                        ? "text"
-                        : isPasswordVisible
-                        ? "text"
-                        : "password"
-                    }
-                    helperText={formData[field].helperText}
-                    error={formData[field].helperText ? true : false}
-                    value={formData[field].value}
-                    onFocus={() => {
-                      handleFocusInput(field);
-                    }}
-                    onChange={(e) => {
-                      handleType(field, e.target.value);
-                    }}
-                    onBlur={(e) => {
-                      handleBlurInput(field, e.target.value);
-                    }}
-                    onKeyDown={(e) => {
-                      e.key == "Enter" && handleRegister();
-                    }}
-                  />
-                </Grid>
-              ))}
-            </Grid>
-          </form>
+          <div className="w-full flex items-center justify-center ">
+            <form className="flex flex-col justify-center items-center w-10/12 sm:w-6/12 md:w-7/12 lg:w-5/12 ">
+              <Grid container spacing={2} className="">
+                {Object.keys(formData).map((field) => (
+                  <Grid key={`log-in-form-${field}`} item xs={12}>
+                    <TextField
+                      fullWidth
+                      variant="outlined"
+                      placeholder={formData[field].placeholder}
+                      InputProps={formData[field].inputProps}
+                      type={
+                        formData[field].type !== "password"
+                          ? "text"
+                          : isPasswordVisible
+                          ? "text"
+                          : "password"
+                      }
+                      helperText={formData[field].helperText}
+                      error={formData[field].helperText ? true : false}
+                      value={formData[field].value}
+                      onFocus={() => {
+                        handleFocusInput(field);
+                      }}
+                      onChange={(e) => {
+                        handleType(field, e.target.value);
+                      }}
+                      onBlur={(e) => {
+                        handleBlurInput(field, e.target.value);
+                      }}
+                      onKeyDown={(e) => {
+                        e.key == "Enter" && handleRegister();
+                      }}
+                    />
+                  </Grid>
+                ))}
+              </Grid>
+            </form>
+          </div>
           <div className="mt-1">
             <Button
               variant="outlined"
