@@ -20,8 +20,10 @@ public class FirebaseStorageService {
 
     public URL uploadFile(InputStream fileStream, String folderName ,String fileName) {
         try {
+//            String keyPath = "src\\main\\java\\com\\kma\\wordprocessor\\assets";
+//
             Storage storage = StorageOptions.newBuilder()
-                    .setCredentials(GoogleCredentials.fromStream(new FileInputStream("C:\\KMA\\TTCS\\word-processor\\server\\word-processor\\src\\main\\java\\com\\kma\\wordprocessor\\assets\\serviceAccountKey.json")))
+                    .setCredentials(GoogleCredentials.fromStream(new FileInputStream("src/main/resources/firebaseKey.json")))
                     .build()
                     .getService();
 

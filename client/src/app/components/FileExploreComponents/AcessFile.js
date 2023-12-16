@@ -2,7 +2,7 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 
 import {
-  CachedOutlined,
+  AutoModeOutlined,
   GridOn,
   JoinFullOutlined,
   PinOutlined,
@@ -25,11 +25,11 @@ function AccessFile({ componentType }) {
 
   return (
     <div className="border-slate-200 border-2 p-5 rounded-xl md:h-full">
-      <h1 className="font-bold flex items-center text-2xl">
-        <span className="mr-2"> Truy cập vào tài liệu có sẵn</span>
-        <JoinFullOutlined color="primary" />
+      <h1 className="font-bold text-sm sm:text-lg">
+        Truy cập vào tài liệu có sẵn
+        <JoinFullOutlined color="primary" className="ml-2" />
       </h1>
-      <div className="p-3">
+      <div className="sm:p-3">
         <div className="font-semibold mt-2">Nhập ID tài liệu</div>
         <div className="flex flex-col mt-4 w-full sm:w-4/6 md:w-5/6">
           <TextField
@@ -69,7 +69,7 @@ function AccessFile({ componentType }) {
                 disabled={!accessFileFormData.value.trim()}
               >
                 {accessFileFormData.isBtnSpinning ? (
-                  <CachedOutlined className="animate-spin" />
+                  <AutoModeOutlined className="animate-spin" />
                 ) : (
                   "Truy cập"
                 )}

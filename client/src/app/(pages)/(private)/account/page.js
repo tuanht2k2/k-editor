@@ -5,7 +5,7 @@ import { instance } from "@/app/utils/axios";
 import getApiConfig from "@/app/utils/getApiConfig";
 import { login } from "@/lib/redux/action/user";
 import {
-  CachedOutlined,
+  AutoModeOutlined,
   ContactPhoneOutlined,
   EmailOutlined,
   Grid3x3Outlined,
@@ -338,7 +338,7 @@ function Account() {
       .then((res) => {
         const newUser = res.data;
         dispatch(login(newUser));
-
+        setPreviewProfileImagePath("");
         setSnackBarData({
           content: "Cập nhật ảnh đại diện thành công",
           severity: "success",
@@ -433,7 +433,7 @@ function Account() {
                       setProfileImage(file);
                       handlePreviewProfileImage(file);
                     }}
-                    accept="image/jpeg image/png"
+                    accept="image/jpeg,image/png"
                   />
                 </div>
                 {previewProfileImagePath && (
@@ -462,7 +462,7 @@ function Account() {
                       }}
                     >
                       {isSubmitProfileImageBtnSpinning ? (
-                        <CachedOutlined className="animate-spin" />
+                        <AutoModeOutlined className="animate-spin" />
                       ) : (
                         "Lưu thay đổi"
                       )}
@@ -587,7 +587,7 @@ function Account() {
                 }
               >
                 {isSettingsFormBtnSpinning ? (
-                  <CachedOutlined className="text-sky-500 animate-spin" />
+                  <AutoModeOutlined className="text-sky-500 animate-spin" />
                 ) : (
                   "Lưu thay đổi"
                 )}

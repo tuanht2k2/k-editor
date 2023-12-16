@@ -1,7 +1,7 @@
 "use client";
 
 import {
-  CachedOutlined,
+  AutorenewOutlined,
   CloseOutlined,
   ExpandCircleDownOutlined,
   HistoryOutlined,
@@ -109,7 +109,7 @@ function UpdateHistory({ file }) {
               </div>
               <div className="flex items-center">
                 <IconButton className="ml-5" onClick={null} title="Tải lại">
-                  <CachedOutlined className="text-sky-500 text-md" />
+                  <AutorenewOutlined className="text-sky-500 text-md" />
                 </IconButton>
                 <IconButton
                   className="ml-5"

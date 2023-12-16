@@ -1,11 +1,12 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useState } from "react";
 
 import Link from "next/link";
 
 import {
-  CachedOutlined,
+  AutoModeOutlined,
+  AutorenewOutlined,
   ContentCutOutlined,
   ContentPasteGoOutlined,
   CreateNewFolderOutlined,
@@ -548,22 +549,20 @@ function FileExplore({
         placement={snackBarData.placement}
       />
 
-      <div className="flex justify-between items-center">
-        <div className="flex item-center">
-          <h1 className="font-bold flex items-center text-2xl ">
-            <span className="mr-2 text-slate-600">
-              Quản lí tài nguyên <FolderOpenOutlined />
-            </span>
+      <div className="flex flex-col md:flex-row md:justify-between md:items-center">
+        <div className="flex flex-col md:flex-row">
+          <h1 className="font-bold text-lg md:text-xl lg:text-2xl flex items-center">
+            Quản lí tài nguyên <FolderOpenOutlined className="ml-2" />
           </h1>
           {componentType !== "file-explore" && (
-            <span className="ml-4 flex items-center text-slate-400 text-sm">
+            <span className="md:ml-4 flex items-center text-slate-400 text-md">
               {`Lưu ý: Chỉ xem được những file định dạng ${
                 componentType === "k-word" ? ".txt" : ".xlsx"
               }`}
             </span>
           )}
         </div>
-        <div className="flex items-center">
+        <div className="flex items-center border-t-2 border-slate-200 mt-3 md:m-0 md:border-none">
           {parentFolder && (
             <Link
               href={`/${componentType}/${
@@ -593,7 +592,7 @@ function FileExplore({
             title="Làm mới"
             onClick={handleGetFolderData}
           >
-            <CachedOutlined />
+            <AutorenewOutlined />
           </IconButton>
         </div>
       </div>
@@ -624,7 +623,7 @@ function FileExplore({
       <div>
         {/* create folder */}
         {createFolderFormData.isVisble && (
-          <div className="pt-4 pb-4 border-slate-100 flex items-center">
+          <div className="pt-4 pb-4 border-slate-100 flex flex-col sm:flex-row">
             <TextField
               placeholder={"Nhập tên thư mục mới..."}
               value={createFolderFormData.value}
@@ -640,37 +639,39 @@ function FileExplore({
               error={!createFolderFormData.value.trim()}
               inputRef={(input) => input && input.focus()}
             />
-            <Button
-              variant="outlined"
-              color="success"
-              style={{ minWidth: "115px" }}
-              className={`ml-4 ${
-                !createFolderFormData.value.trim()
-                  ? `cursor-no-drop`
-                  : `cursor-pointer`
-              }`}
-              disabled={!createFolderFormData.value.trim()}
-              onClick={handleCreateFolder}
-            >
-              {createFolderFormData.isSubmitBtnSpinning ? (
-                <CachedOutlined className="animate-spin" />
-              ) : (
-                "Xác nhận"
-              )}
-            </Button>
-            <div className="flex ml-4">
+            <div className="flex items-center mt-3 sm:mt-0 sm:ml-3">
               <Button
                 variant="outlined"
-                color="error"
-                onClick={() => {
-                  setCreateFolderFormData((prev) => ({
-                    value: "",
-                    isVisble: false,
-                  }));
-                }}
+                color="success"
+                style={{ minWidth: "115px" }}
+                className={`${
+                  !createFolderFormData.value.trim()
+                    ? `cursor-no-drop`
+                    : `cursor-pointer`
+                }`}
+                disabled={!createFolderFormData.value.trim()}
+                onClick={handleCreateFolder}
               >
-                Hủy
+                {createFolderFormData.isSubmitBtnSpinning ? (
+                  <AutoModeOutlined className="animate-spin" />
+                ) : (
+                  "Xác nhận"
+                )}
               </Button>
+              <div className="flex ml-4">
+                <Button
+                  variant="outlined"
+                  color="error"
+                  onClick={() => {
+                    setCreateFolderFormData((prev) => ({
+                      value: "",
+                      isVisble: false,
+                    }));
+                  }}
+                >
+                  Hủy
+                </Button>
+              </div>
             </div>
           </div>
         )}

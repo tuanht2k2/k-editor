@@ -205,7 +205,7 @@ function WordEditor() {
             offset={[0, 0]}
             render={() => (
               <div className="w-screen h-[calc(100vh-15px)] flex items-center justify-center bg-slate-50/[.54]">
-                <div className="bg-white flex flex-col w-3/4 h-3/4 border-2 rounded-md border-sky-400 overflow-hidden p-5">
+                <div className="bg-white flex flex-col w-full h-full sm:w-3/4 sm:h-3/4 border-2 rounded-md border-sky-400 overflow-hidden p-5">
                   <header className="flex items-center justify-between pb-2">
                     <div className="flex items-center font-semibold">
                       <PreviewOutlined className="text-sky-500 mr-3" />

@@ -3,11 +3,8 @@ import { useSelector } from "react-redux";
 
 import {
   AbcOutlined,
-  AccountCircle,
-  CachedOutlined,
-  DriveFileRenameOutline,
+  AutoModeOutlined,
   GridOn,
-  Lock,
   NoteAddOutlined,
   PasswordOutlined,
   TextSnippetOutlined,
@@ -82,11 +79,12 @@ function CreateFile({ componentType, fileExplore, handleReload }) {
         content={"Tạo file thành công!"}
         severity={"success"}
       />
-      <h1 className="font-bold flex items-center text-xl md:text-2xl">
-        <span className="mr-2">Tạo tài liệu mới</span>
-        <NoteAddOutlined color="primary" />
+      <h1 className="font-bold text-sm sm:text-lg">
+        Tạo tài liệu mới
+        <NoteAddOutlined color="primary" className="ml-2" />
       </h1>
-      <div className="p-1 md:p-3">
+
+      <div className="sm:p-3">
         <div className="font-semibold mt-2 ">
           <span className="text-sm sm:text-base">
             Tạo tài liệu mới trong thư mục
@@ -210,7 +208,7 @@ function CreateFile({ componentType, fileExplore, handleReload }) {
                 }}
               >
                 {createFileFormData.isBtnSpinning ? (
-                  <CachedOutlined className="animate-spin" />
+                  <AutoModeOutlined className="animate-spin" />
                 ) : (
                   "Tạo mới"
                 )}

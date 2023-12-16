@@ -32,7 +32,7 @@ import ListItemText from "@mui/material/ListItemText";
 import { Button, Grid, Menu, MenuItem } from "@mui/material";
 import {
   AccountCircleOutlined,
-  CachedOutlined,
+  AutoModeOutlined,
   DriveFileMoveOutlined,
   FilterFramesOutlined,
   GridOnOutlined,
@@ -243,7 +243,7 @@ function RootLayout({ children }) {
               <header className="w-full h-full flex justify-between items-center sm:pl-3 sm:pr-3 md:pl-5 md:pr-5">
                 <Link
                   href={"/file-explore/home"}
-                  className="font-bold text-sky-600 text-sm md:text-2xl sm:text-xl sm:p-1 rounded-xl border-b-2 border-sky-500"
+                  className="font-bold text-sky-600 text-sm md:text-2xl sm:text-xl sm:p-1 rounded-xl border-b-2 border-t-2 border-sky-500"
                 >
                   K-EDITOR
                 </Link>
@@ -446,7 +446,7 @@ function RootLayout({ children }) {
         </Box>
       ) : (
         <div className="w-ful h-full flex items-center justify-center">
-          <CachedOutlined className="animate-spin text-sky-500" />
+          <AutoModeOutlined className="animate-spin text-sky-500" />
         </div>
       )}
     </Fragment>

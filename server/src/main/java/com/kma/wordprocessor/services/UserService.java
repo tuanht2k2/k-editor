@@ -33,9 +33,6 @@ public class UserService {
     private PasswordEncoder passwordEncoder;
 
     @Autowired
-    private UserDetailsService userInfoDetailsService;
-
-    @Autowired
     FirebaseStorageService firebaseStorageService;
 
     public ResponseObj getAllUsers () {

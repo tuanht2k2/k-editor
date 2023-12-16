@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import {
   Box,
   Button,
@@ -12,7 +12,7 @@ import {
 } from "@mui/material";
 import {
   AccountCircle,
-  CachedOutlined,
+  AutoModeOutlined,
   LockOutlined,
   Visibility,
   VisibilityOff,
@@ -182,18 +182,20 @@ function Login() {
   return (
     <div className="w-full h-full bg-slate-100 bg-cover flex justify-center items-center">
       <div className="p-5 pt-1 sm:p-10 flex justify-center items-center">
-        <div className="border-sky-300 border-2 flex-1 rounded-2xl  bg-white text-center  p-3 pt-0 md:p-7">
+        <div className="border-sky-300 border-2 flex-1 rounded-2xl bg-white text-center p-3 pt-0 md:p-7">
           <div className="w-full p-5 font-semibold text-slate-700 border-b-2 border-slate-200 text-xl sm:text-3xl">
             Đăng nhập
           </div>
-          <div className="mb-4 w-full p-2 flex justify-center items-center ">
-            <img
-              className="w-14 h-14 sm:w-20 sm:h-20"
-              src={"/assets/images/logo.png"}
-            />
-            <h1 className="font-semibold font-mono text-xl sm:p-2 sm:text-2xl">
-              K-Editor
-            </h1>
+          <div className="flex items-center justify-center w-full mt-3">
+            <div className="mb-4 p-2 flex justify-center items-center border-b-4 border-b-sky-500 border-t-4 border-t-sky-500 rounded-2xl">
+              <img
+                className="w-14 h-14 sm:w-20 sm:h-20"
+                src={"/assets/images/logo.png"}
+              />
+              <h1 className="font-semibold font-mono text-xl sm:p-2 sm:text-2xl">
+                K-Editor
+              </h1>
+            </div>
           </div>
 
           <div className="w-full flex items-center justify-center">
@@ -252,7 +254,7 @@ function Login() {
               disabled={loginBtnStt.isDisabled}
             >
               {loginBtnStt.isSpinning ? (
-                <CachedOutlined className="animate-spin" />
+                <AutoModeOutlined className="animate-spin" />
               ) : (
                 "Đăng nhập"
               )}

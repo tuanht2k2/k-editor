@@ -3,7 +3,7 @@
 import { useState } from "react";
 
 import {
-  CachedOutlined,
+  AutoModeOutlined,
   FileOpenOutlined,
   Visibility,
   VisibilityOff,
@@ -77,7 +77,7 @@ function AuthFile({
             style={{ minWidth: "115px" }}
           >
             {isBtnSpinning ? (
-              <CachedOutlined className="animate-spin" />
+              <AutoModeOutlined className="animate-spin" />
             ) : passwordValue.trim() ? (
               "Truy cập với mật khẩu"
             ) : (

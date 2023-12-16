@@ -11,7 +11,7 @@ import {
 import Link from "next/link";
 import {
   AccountCircle,
-  CachedOutlined,
+  AutoModeOutlined,
   EmailOutlined,
   LockOutlined,
   PhoneOutlined,
@@ -257,12 +257,16 @@ function Register() {
           <div className="w-fullfont-bold text-slate-700 border-b-2 border-slate-200 font-semibold p-2 text-xl sm:p-5 sm:text-3xl ">
             Tạo tài khoản
           </div>
-          <div className="mb-4 w-full p-2 flex justify-center items-center ">
-            <img
-              className="w-14 h-14 sm:w-20 sm:h-20"
-              src={"/assets/images/logo.png"}
-            />
-            <h1 className="font-semibold text-2xl font-mono p-2">K-Editor</h1>
+          <div className="flex items-center justify-center w-full mt-3">
+            <div className="mb-4 p-2 flex justify-center items-center border-b-4 border-b-sky-500 border-t-4 border-t-sky-500 rounded-2xl">
+              <img
+                className="w-14 h-14 sm:w-20 sm:h-20"
+                src={"/assets/images/logo.png"}
+              />
+              <h1 className="font-semibold font-mono text-xl sm:p-2 sm:text-2xl">
+                K-Editor
+              </h1>
+            </div>
           </div>
 
           <div className="w-full flex items-center justify-center ">
@@ -313,7 +317,7 @@ function Register() {
               disabled={registerBtnStt.isDisabled}
             >
               {registerBtnStt.isSpinning ? (
-                <CachedOutlined className="animate-spin" />
+                <AutoModeOutlined className="animate-spin" />
               ) : (
                 "Đăng ký"
               )}
