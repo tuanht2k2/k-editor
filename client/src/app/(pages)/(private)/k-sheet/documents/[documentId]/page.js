@@ -91,7 +91,10 @@ function SheetEditor() {
   useEffect(() => {
     if (!sheet || !spreadsheetRef.current) return;
 
-    const socket = new SockJS("http://localhost:8080/ws", getApiConfig());
+    const socket = new SockJS(
+      "https://k-editor-service.onrender.com/ws",
+      getApiConfig()
+    );
     const client = over(socket);
     client.connect({}, () => {
       client.subscribe(`/documents/k-sheet/${sheet._id}`, (res) => {

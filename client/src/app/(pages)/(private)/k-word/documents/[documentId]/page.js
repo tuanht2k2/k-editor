@@ -83,7 +83,10 @@ function WordEditor() {
   useEffect(() => {
     if (!file) return;
     const config = getApiConfig();
-    const socket = new SockJS("http://localhost:8080/ws", config);
+    const socket = new SockJS(
+      "https://k-editor-service.onrender.com/ws",
+      config
+    );
     const client = over(socket);
     client.connect({}, () => {
       client.subscribe(`/documents/k-word/${file._id}`, (res) => {

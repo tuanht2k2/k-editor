@@ -49,7 +49,7 @@ function TemporaryMessenger({ document, hideWindowFn }) {
 
   // webSocket config
   useEffect(() => {
-    const socket = new SockJS("http://localhost:8080/ws");
+    const socket = new SockJS("https://k-editor-service.onrender.com/ws");
 
     const client = over(socket);
     client.connect(
