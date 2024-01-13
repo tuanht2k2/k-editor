@@ -58,7 +58,8 @@ function UpdateHistory({ file }) {
   useEffect(() => {
     if (!file) return;
     const socket = new SockJS(
-      "https://k-editor-service.onrender.com/ws",
+      "http://localhost:8080/ws",
+      // "https://k-editor-service.onrender.com/ws",
       getApiConfig()
     );
     const client = over(socket);

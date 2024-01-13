@@ -92,7 +92,8 @@ function SheetEditor() {
     if (!sheet || !spreadsheetRef.current) return;
 
     const socket = new SockJS(
-      "https://k-editor-service.onrender.com/ws",
+      // "https://k-editor-service.onrender.com/ws",
+      "http://localhost:8080/ws",
       getApiConfig()
     );
     const client = over(socket);

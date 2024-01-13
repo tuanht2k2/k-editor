@@ -34,8 +34,8 @@ import {
   AccountCircleOutlined,
   AutoModeOutlined,
   DriveFileMoveOutlined,
-  FilterFramesOutlined,
   GridOnOutlined,
+  GroupOutlined,
   LogoutOutlined,
   TextSnippetOutlined,
 } from "@mui/icons-material";
@@ -121,12 +121,12 @@ function RootLayout({ children }) {
       href: "/file-explore/home",
     },
     { type: "devider" },
-    // {
-    //   type: "link",
-    //   title: "K-Board",
-    //   icon: <FilterFramesOutlined />,
-    //   href: "/k-board/documents/sjfjf",
-    // },
+    {
+      type: "link",
+      title: "K-Learning",
+      icon: <GroupOutlined />,
+      href: "/k-learning",
+    },
     {
       type: "link",
       title: "K-Word",
@@ -177,7 +177,7 @@ function RootLayout({ children }) {
         dispatch(login(user));
         setIsPageLoaded(true);
       })
-      .catch((err) => {
+      .catch(() => {
         setIsPageLoaded(true);
       });
   };
@@ -245,7 +245,7 @@ function RootLayout({ children }) {
                   href={"/file-explore/home"}
                   className="font-bold text-sky-600 text-sm md:text-2xl sm:text-xl sm:p-1 rounded-xl border-b-2 border-t-2 border-sky-500"
                 >
-                  K-EDITOR
+                  K-OFFICE
                 </Link>
                 <div className="flex items-center">
                   <Grid container>

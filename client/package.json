@@ -50,6 +50,7 @@
     "lodash.debounce": "^4.0.8",
     "net": "^1.0.2",
     "next": "^14.0.2",
+    "peerjs": "^1.5.2",
     "react": "^18.2.0",
     "react-dom": "^18.0.0",
     "react-material-ui-carousel": "^3.4.2",
@@ -59,9 +60,11 @@
     "react-stomp": "^5.1.0",
     "react-use-websocket": "^4.5.0",
     "regenerator-runtime": "^0.14.0",
+    "simple-peer": "^9.11.1",
     "sockjs-client": "^1.6.1",
     "stompjs": "^2.3.3",
-    "websocket": "^1.0.34"
+    "websocket": "^1.0.34",
+    "zego-express-engine-webrtc": "^3.1.2"
   },
   "devDependencies": {
     "@types/regenerator-runtime": "^0.13.3",
@@ -69,6 +72,7 @@
     "eslint": "^8",
     "eslint-config-next": "14.0.0",
     "postcss": "^8",
+    "tailwind-scrollbar": "^3.0.5",
     "tailwindcss": "^3"
   }
 }

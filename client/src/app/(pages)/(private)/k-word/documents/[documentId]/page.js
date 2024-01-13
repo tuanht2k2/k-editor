@@ -84,7 +84,8 @@ function WordEditor() {
     if (!file) return;
     const config = getApiConfig();
     const socket = new SockJS(
-      "https://k-editor-service.onrender.com/ws",
+      // "https://k-editor-service.onrender.com/ws",
+      "http://localhost:8080/ws",
       config
     );
     const client = over(socket);
@@ -107,7 +108,6 @@ function WordEditor() {
     };
   }, [file]);
 
-  // check bug
   const debounceFn = debounce((data) => handleUpdateFile(data), 300, {
     // maxWait: 2000,
   });
@@ -125,7 +125,7 @@ function WordEditor() {
       data: data,
       time: new Date(),
     };
-    console.log(action);
+
     stompClient.send(
       `/app/documents/k-word/${fileId}`,
       {},
