@@ -1,11 +1,10 @@
 "use client";
 
 import Custom404 from "@/app/components/Custom404";
-import CustomSkeleton from "@/app/components/CustomSkeleton";
 import LessonSidebar from "@/app/components/KLearning/lessons/LessonSidebar";
 import { instance } from "@/app/utils/axios";
 import getApiConfig from "@/app/utils/getApiConfig";
-import { AutorenewOutlined, RefreshOutlined } from "@mui/icons-material";
+import { CircularProgress } from "@mui/material";
 
 import { Fragment, useEffect, useLayoutEffect, useRef, useState } from "react";
 import { useSelector } from "react-redux";
@@ -67,16 +66,15 @@ function LessonLayout({ children, params }) {
             {children}
           </div>
           <LessonSidebar
-            wrapperHeight={wrapperHeight}
+            // wrapperHeight={wrapperHeight}
             classData={classData}
             handleReloadChapters={handleGetAllChapters}
-            currentLesson={params.lessonId}
           />
         </div>
       ) : (
         <div className="h-full flex-1 w-full flex justify-center items-center">
           {pageState == "loading" ? (
-            <AutorenewOutlined className="text-sky-500 animate-spin" />
+            <CircularProgress color="success" />
           ) : (
             <Custom404 />
           )}

@@ -29,7 +29,7 @@ import ListItemButton from "@mui/material/ListItemButton";
 import ListItemIcon from "@mui/material/ListItemIcon";
 import ListItemText from "@mui/material/ListItemText";
 
-import { Button, Grid, Menu, MenuItem } from "@mui/material";
+import { Button, CircularProgress, Grid, Menu, MenuItem } from "@mui/material";
 import {
   AccountCircleOutlined,
   AutoModeOutlined,
@@ -37,6 +37,7 @@ import {
   GridOnOutlined,
   GroupOutlined,
   LogoutOutlined,
+  SchoolOutlined,
   TextSnippetOutlined,
 } from "@mui/icons-material";
 import { usePathname, useRouter } from "next/navigation";
@@ -121,12 +122,7 @@ function RootLayout({ children }) {
       href: "/file-explore/home",
     },
     { type: "devider" },
-    {
-      type: "link",
-      title: "K-Learning",
-      icon: <GroupOutlined />,
-      href: "/k-learning",
-    },
+
     {
       type: "link",
       title: "K-Word",
@@ -138,6 +134,12 @@ function RootLayout({ children }) {
       title: "K-Sheet",
       icon: <GridOnOutlined />,
       href: "/k-sheet/home",
+    },
+    {
+      type: "link",
+      title: "K-Learning",
+      icon: <SchoolOutlined />,
+      href: "/k-learning",
     },
     { type: "devider" },
     {
@@ -302,59 +304,6 @@ function RootLayout({ children }) {
                           <IconButton onClick={handleLogOut}>
                             <LogoutOutlined className="text-orange-500" />
                           </IconButton>
-                          {/* <Menu
-                            id="demo-positioned-menu"
-                            aria-labelledby="demo-positioned-button"
-                            anchorEl={anchorEl}
-                            open={open}
-                            onClose={handleClose}
-                            anchorOrigin={{
-                              vertical: "top",
-                              horizontal: "left",
-                            }}
-                            transformOrigin={{
-                              vertical: "top",
-                              horizontal: "left",
-                            }}
-                          >
-                            <MenuItem onClick={handleClose}>
-                              <Link
-                                className="flex items-center [&>*]:text-sky-900"
-                                href={"/account"}
-                              >
-                                <FontAwesomeIcon icon={faUser} />
-                                <div className="ml-4">{`Tài khoản - ${user.username}`}</div>
-                              </Link>
-                            </MenuItem>
-                            <MenuItem onClick={handleClose}>
-                              <Link
-                                className="flex items-center [&>*]:text-sky-900"
-                                href={"/profile"}
-                              >
-                                <FontAwesomeIcon icon={faPlusSquare} />
-                                <div className="ml-4">Tạo tệp mới</div>
-                              </Link>
-                            </MenuItem>
-                            <MenuItem onClick={handleClose}>
-                              <Link
-                                className="flex items-center [&>*]:text-sky-900"
-                                href={"/profile"}
-                              >
-                                <FontAwesomeIcon icon={faFile} />
-                                <div className="ml-4">Tệp của tôi</div>
-                              </Link>
-                            </MenuItem>
-                            <MenuItem onClick={handleClose}>
-                              <div
-                                className="flex items-center [&>*]:text-sky-900 cursor-pointer"
-                                href={"/profile"}
-                                onClick={handleLogOut}
-                              >
-                                <FontAwesomeIcon icon={faSignOut} />
-                                <div className="ml-4">Đăng xuất</div>
-                              </div>
-                            </MenuItem>
-                          </Menu> */}
                         </div>
                       ) : (
                         <Link href={"/login"}>
@@ -446,7 +395,7 @@ function RootLayout({ children }) {
         </Box>
       ) : (
         <div className="w-ful h-full flex items-center justify-center">
-          <AutoModeOutlined className="animate-spin text-sky-500" />
+          <CircularProgress className="animate-spin text-sky-500" />
         </div>
       )}
     </Fragment>

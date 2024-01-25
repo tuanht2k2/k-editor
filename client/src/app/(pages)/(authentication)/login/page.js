@@ -5,6 +5,7 @@ import {
   Box,
   Button,
   Checkbox,
+  CircularProgress,
   Grid,
   IconButton,
   InputAdornment,
@@ -193,7 +194,7 @@ function Login() {
                 src={"/assets/images/logo.png"}
               />
               <h1 className="font-semibold font-mono text-xl sm:p-2 sm:text-2xl">
-                K-Editor
+                K-OFFICE
               </h1>
             </div>
           </div>
@@ -254,7 +255,7 @@ function Login() {
               disabled={loginBtnStt.isDisabled}
             >
               {loginBtnStt.isSpinning ? (
-                <AutoModeOutlined className="animate-spin" />
+                <CircularProgress size={20} className="animate-spin" />
               ) : (
                 "Đăng nhập"
               )}

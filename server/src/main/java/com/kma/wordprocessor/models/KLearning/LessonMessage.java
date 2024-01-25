@@ -11,7 +11,7 @@ public class LessonMessage {
     @MongoId
     private String _id;
 
-    private String lessonMessengerId;
+    private String classId;
 
     private String ownerId;
 

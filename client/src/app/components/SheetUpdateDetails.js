@@ -1,6 +1,6 @@
 import { registerLicense } from "@syncfusion/ej2-base";
 registerLicense(
-  "ORg4AjUWIQA/Gnt2VlhiQlVPd0BBQmFJfFdmTWlcflR0fUU3HVdTRHRcQ19jTX5bc0dnUHpddnY="
+  "ORg4AjUWIQA/Gnt2UVhhQlVFfV1dXGZWfFN0QXNRdV53flRPcC0sT3RfQFljSH9Vdk1iW35cdn1RQg=="
 );
 
 import { useEffect, useRef } from "react";

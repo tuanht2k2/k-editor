@@ -6,6 +6,7 @@ import { useSelector } from "react-redux";
 import Link from "next/link";
 
 import {
+  ArrowForward,
   DescriptionOutlined,
   EditOutlined,
   PlayCircleOutlined,
@@ -20,7 +21,7 @@ import getApiConfig from "@/app/utils/getApiConfig";
 import CustomSpinningSkeleton from "@/app/components/CustomSpinningSkeleton";
 import Custom404 from "@/app/components/Custom404";
 
-function Lesson({ params }) {
+function VideoLesson({ params }) {
   const user = useSelector((state) => state.user);
   const searchParams = useSearchParams();
 
@@ -31,7 +32,7 @@ function Lesson({ params }) {
   useEffect(() => {
     if (Object.keys(user).length == 0) return;
 
-    const api = `classes/${params.classId}/lessons/${params.lessonId}`;
+    const api = `classes/${params.classId}/lessons/${params.lessonId}&user_id=${user._id}`;
     instance
       .get(api, getApiConfig())
       .then((res) => {
@@ -89,7 +90,7 @@ function Lesson({ params }) {
           <div className="mt-5 mb-5 border-t-2 border-slate-200">
             <div className="p-4">
               <div className="flex items-center text-lg font-semibold p-2 text-sky-600">
-                <DescriptionOutlined className="mr-2" /> Mô tả bài học
+                <DescriptionOutlined className="mr-2" /> Mô tả
               </div>
               <div className="overflow-hidden ml-4 pl-4">
                 {parser(lessonData.description)}
@@ -98,13 +99,13 @@ function Lesson({ params }) {
           </div>
 
           {/* question */}
-          <div className="mt-5 mb-5 border-t-2 border-slate-200">
+          {/* <div className="mt-5 mb-5 border-t-2 border-slate-200">
             <div className="p-4">
               <div className="flex items-center text-lg font-semibold p-2 text-sky-600">
                 <DescriptionOutlined className="mr-2" /> Hỏi đáp
               </div>
               <div className="pl-2">
-                {/* comment */}
+            
                 <div className="flex flex-col md:flex-row">
                   <div className="flex flex-col md:flex-row">
                     <img
@@ -117,34 +118,31 @@ function Lesson({ params }) {
                 </div>
               </div>
             </div>
-          </div>
+          </div> */}
 
-          <div className="sticky bottom-0 left-0 border-t-2 border-sky-300 bg-slate-200 flex justify-center">
+          <div className="sticky bottom-0 left-0 bg-gray-800 flex justify-center">
             <div className="flex items-center p-3 pl-4">
-              <PlayCircleOutlined className="text-orange-600 animate-pulse" />
-              <div className="ml-2 flex items-center font-semibold [&>span]:text-orange-600">
-                <span className="underline">
+              <PlayCircleOutlined className="animate-pulse text-orange-500" />
+              <div className="ml-2 flex items-center">
+                <span className="underline text-orange-500">
                   {searchParams.get("chapter_name")}:
                 </span>
-                <span className="ml-2 overflow-hidden">{lessonData.name}</span>
+                <span className="ml-2 overflow-hidden text-orange-500">
+                  {lessonData.name}
+                </span>
               </div>
             </div>
             {user._id == lessonData.ownerId && (
               <div className="flex justify-start pl-2">
                 <Link
                   href={{
-                    pathname: `/k-learning/${params.classId}/lessons/${
-                      params.lessonId
-                    }/edit/${
-                      lessonData.type == "video"
-                        ? "video-lesson"
-                        : "examination-lesson"
-                    }`,
+                    pathname: `/k-learning/${params.classId}/lessons/${params.lessonId}/edit/video`,
                   }}
-                  className=" border-2 border-sky-300 flex items-center p-2 rounded-lg bg-slate-100 shadow-sm hover:bg-white text-orange-600 duration-300 font-semibold"
+                  className="flex items-center"
                 >
-                  <EditOutlined className="mr-2" />
-                  Chỉnh sửa bài giảng
+                  <div className="rounded-2xl bg-sky-500 flex items-center justify-center p-1 pl-3 pr-3 text-sm text-gray-200">
+                    Chỉnh sửa
+                  </div>
                 </Link>
               </div>
             )}
@@ -155,4 +153,4 @@ function Lesson({ params }) {
   );
 }
 
-export default Lesson;
+export default VideoLesson;

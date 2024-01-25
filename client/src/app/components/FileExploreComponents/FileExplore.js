@@ -11,6 +11,7 @@ import {
   ContentPasteGoOutlined,
   CreateNewFolderOutlined,
   DeleteOutline,
+  DriveFileMoveOutlined,
   DriveFolderUpload,
   FileOpenOutlined,
   Folder,
@@ -626,6 +627,7 @@ function FileExplore({
           <div className="pt-4 pb-4 border-slate-100 flex flex-col sm:flex-row">
             <TextField
               placeholder={"Nhập tên thư mục mới..."}
+              variant="standard"
               value={createFolderFormData.value}
               onChange={(e) => {
                 setCreateFolderFormData((prev) => ({
@@ -727,7 +729,7 @@ function FileExplore({
                   title={"Di chuyển những tệp và thư mục bạn đã chọn"}
                   fn={handleCutFile}
                 >
-                  <ContentCutOutlined
+                  <DriveFileMoveOutlined
                     className="text-orange-400"
                     fontSize="small"
                   />
@@ -802,7 +804,7 @@ function FileExplore({
                   title={"Di chuyển những tệp và thư mục bạn đã chọn"}
                   fn={handleCutFile}
                 >
-                  <ContentCutOutlined
+                  <DriveFileMoveOutlined
                     className="text-orange-400"
                     fontSize="small"
                   />
@@ -813,15 +815,15 @@ function FileExplore({
                 (fileExploreSelectedInMemory.files.length > 0 ||
                   fileExploreSelectedInMemory.folders.length > 0) && (
                   <div className="flex items-center">
-                    <CustomIconButtonWrapper
+                    <IconButton
                       title={"Dán những thư mục và tệp bạn đã sao chép"}
-                      fn={handlePasteFile}
+                      onClick={handlePasteFile}
                     >
                       <ContentPasteGoOutlined
                         className="text-sky-600"
                         fontSize="small"
                       />
-                    </CustomIconButtonWrapper>
+                    </IconButton>
                     <span className="italic text-sm text-slate-400">
                       Di chuyển
                     </span>

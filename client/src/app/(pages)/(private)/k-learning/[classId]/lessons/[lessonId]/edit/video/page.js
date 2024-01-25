@@ -2,17 +2,18 @@
 
 import { Fragment, useEffect, useState } from "react";
 import { useSelector } from "react-redux";
+import { useRouter } from "next/navigation";
 
-import { Button } from "@mui/material";
+import { Button, CircularProgress } from "@mui/material";
 
 import Custom404 from "@/app/components/Custom404";
 import CustomSnackBar from "@/app/components/CustomSnackBar";
 import CustomSpinningSkeleton from "@/app/components/CustomSpinningSkeleton";
 import useVideoLessonEditor from "@/app/components/KLearning/lessons/useVideoLessonEditor";
+import ConfirmBox from "@/app/components/ConfirmBox";
 
 import { instance } from "@/app/utils/axios";
 import getApiConfig from "@/app/utils/getApiConfig";
-import { RefreshOutlined } from "@mui/icons-material";
 
 function LessonEditor({ params }) {
   const user = useSelector((state) => state.user);
@@ -62,7 +63,7 @@ function LessonEditor({ params }) {
   useEffect(() => {
     if (Object.keys(user).length == 0) return;
 
-    const api = `classes/${params.classId}/lessons/${params.lessonId}`;
+    const api = `classes/${params.classId}/lessons/${params.lessonId}&user_id=${user._id}`;
     instance
       .get(api, getApiConfig())
       .then((res) => {
@@ -79,6 +80,45 @@ function LessonEditor({ params }) {
         setPageState("not_found");
       });
   }, [user]);
+
+  // delete lesson
+
+  const router = useRouter();
+
+  const [isDeleteLessonBtnSpinning, setIsDeleteLessonBtnSpinning] =
+    useState(false);
+
+  const [isDeleteLessonConfirmBoxVisible, setIsDeleteLessonConfirmBoxVisible] =
+    useState(false);
+
+  const handleDeleteLesson = () => {
+    setIsDeleteLessonConfirmBoxVisible(false);
+    setIsDeleteLessonBtnSpinning(true);
+
+    const api = `classes/${params.classId}/lessons/${params.lessonId}/delete`;
+    instance
+      .delete(api, getApiConfig())
+      .then(() => {
+        setSnackBarData(() => ({
+          content: "Xóa thi thành công",
+          severity: "success",
+          open: true,
+        }));
+      })
+      .then(() => {
+        router.push(`/k-learning/${params.classId}/lessons`);
+      })
+      .catch(() => {
+        setSnackBarData(() => ({
+          content: "Đã xảy ra lỗi",
+          severity: "error",
+          open: true,
+        }));
+      })
+      .finally(() => {
+        setIsDeleteLessonBtnSpinning(false);
+      });
+  };
 
   return (
     <Fragment>
@@ -98,25 +138,50 @@ function LessonEditor({ params }) {
           />
           <header className="sticky top-0 left-0 z-10 border-b-2 border-slate-100 bg-white p-4 flex items-center justify-between">
             <div className="text-orange-600 font-semibold">
-              Chỉnh sửa bài giảng: <span>{lessonData.name}</span>
+              {lessonData.name}
             </div>
-            <Button
-              variant="outlined"
-              style={{ minWidth: "115px" }}
-              onClick={handleSubmitLessonData}
-              disabled={
-                !(
-                  videoLessonData.name.trim() &&
-                  videoLessonData.mediaLink.trim()
-                )
-              }
-            >
-              {isSubmitBtnSpinning ? (
-                <RefreshOutlined className="text-sky-500 animate-spin" />
-              ) : (
-                "Lưu thay đổi"
-              )}
-            </Button>
+            <div className="flex items-center">
+              <Button
+                variant="outlined"
+                style={{ minWidth: "115px", marginRight: "10px" }}
+                onClick={handleSubmitLessonData}
+                disabled={
+                  !(
+                    videoLessonData.name.trim() &&
+                    videoLessonData.mediaLink.trim()
+                  )
+                }
+              >
+                {isSubmitBtnSpinning ? (
+                  <CircularProgress
+                    size={20}
+                    className="text-sky-500 animate-spin"
+                  />
+                ) : (
+                  "Lưu thay đổi"
+                )}
+              </Button>
+              <ConfirmBox
+                visible={isDeleteLessonConfirmBoxVisible}
+                onCancel={() => {
+                  setIsDeleteLessonConfirmBoxVisible(false);
+                }}
+                onConfirm={handleDeleteLesson}
+              >
+                <Button
+                  color="error"
+                  onClick={() => {
+                    setIsDeleteLessonConfirmBoxVisible(true);
+                  }}
+                >
+                  {isDeleteLessonBtnSpinning ? (
+                    <CircularProgress size={20} />
+                  ) : (
+                    "Xóa bài học"
+                  )}
+                </Button>
+              </ConfirmBox>
+            </div>
           </header>
           <div className="p-3">{videoLessonEditorElement}</div>
         </div>

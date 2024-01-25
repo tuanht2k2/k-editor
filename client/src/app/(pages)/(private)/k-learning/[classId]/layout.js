@@ -5,124 +5,111 @@ import getApiConfig from "@/app/utils/getApiConfig";
 
 import React, { Fragment, useEffect, useState } from "react";
 
-import Link from "next/link";
-
 import Custom404 from "@/app/components/Custom404";
 import CustomSkeleton from "@/app/components/CustomSkeleton";
 
-import {
-  BadgeOutlined,
-  ChevronLeftOutlined,
-  EmailOutlined,
-  HomeWorkOutlined,
-  ReceiptLongOutlined,
-  SchoolOutlined,
-} from "@mui/icons-material";
+import { ChevronLeftOutlined, ShareOutlined } from "@mui/icons-material";
 
 import { usePathname, useSearchParams } from "next/navigation";
 import { IconButton } from "@mui/material";
-
-const pages = [
-  {
-    label: "Kênh chung",
-    icon: <EmailOutlined className="text-slate-500" />,
-    path: "general",
-  },
-  {
-    label: "Bài giảng",
-    icon: <SchoolOutlined className="text-slate-500" />,
-    path: "lessons",
-  },
-
-  {
-    label: "Bài tập",
-    icon: <HomeWorkOutlined className="text-slate-500" />,
-    path: "homework",
-  },
-  {
-    label: "Bài thi",
-    icon: <ReceiptLongOutlined className="text-slate-500" />,
-    path: "examination",
-  },
-  {
-    label: "Danh sách thành viên",
-    icon: <BadgeOutlined className="text-slate-500" />,
-    path: "students",
-  },
-];
+import LessonHeader from "@/app/components/KLearning/lessons/LessonHeader";
+import Link from "next/link";
+import CustomCircularProgress from "@/app/components/CustomCircularProgress";
+import { useSelector } from "react-redux";
+import CustomSnackBar from "@/app/components/CustomSnackBar";
 
 export const handleGetClassData = (classId) => {
   const api = `classes/${classId}`;
   return instance.get(api, getApiConfig());
 };
 
-function ClassLayout({ children }) {
-  const searchParams = useSearchParams();
-
-  const [pageState, setPageState] = useState("loaded");
-
-  const [classData, setClassData] = useState(null);
+function ClassLayout({ children, params }) {
+  const user = useSelector((state) => state.user);
 
   const splitPathname = usePathname().split("/");
-  const pathname = splitPathname[3];
+  const currentPage = splitPathname[3];
 
-  // useEffect(() => {
-  //   handleGetClassData(params.classId)
-  //     .then((res) => {
-  //       setClassData(res.data);
-  //       setPageState("loaded");
-  //     })
-  //     .catch(() => {
-  //       setPageState("not_found");
-  //     });
-  //   return () => {};
-  // }, []);
+  const [classData, setClassData] = useState("loading");
+
+  useEffect(() => {
+    if (Object.keys(user).length == 0) return;
+
+    handleGetClassData(params.classId)
+      .then((res) => {
+        const classData = res.data;
+        if (
+          !(
+            classData.ownerId == user._id ||
+            classData.memberIds.includes(user._id)
+          )
+        ) {
+          setClassData("not_found");
+          return;
+        }
+        setClassData(classData);
+      })
+      .catch(() => {
+        setClassData("not_found");
+      });
+
+    return () => {};
+  }, [user]);
+
+  const [snackBarData, setSnackBarData] = useState({
+    content: "",
+    open: false,
+    severity: "",
+  });
 
   return (
     <Fragment>
-      {pageState === "loading" ? (
-        <CustomSkeleton />
-      ) : pageState == "not_found" ? (
+      {classData === "loading" ? (
+        <CustomCircularProgress />
+      ) : classData == "not_found" ? (
         <Custom404 />
       ) : (
-        <div className="min-h-[calc(100vh-100px)] w-full border-sky-200 border-2 rounded-lg flex flex-col">
-          <header className="w-full flex items-center justify-between p-3 pl-0 rounded-lg">
+        <div className="min-h-[calc(100vh-100px)] w-full flex flex-col">
+          <header className="mb-2 w-full bg-slate-800 flex items-center justify-between p-2 pr-2 rounded-lg">
             <div className="flex items-center pl-2">
-              <IconButton title="Quay lại">
-                <ChevronLeftOutlined />
-              </IconButton>
-              <span className="ml-2 text-lg font-semibold text-sky-600">
-                {searchParams.get("class_name")}
+              <Link className="" href={"/k-learning"}>
+                <IconButton title="Quay lại">
+                  <ChevronLeftOutlined className="text-gray-100" />
+                </IconButton>
+              </Link>
+              <span className="ml-2 text-lg font-semibold text-gray-100">
+                {classData.classname}
               </span>
+              <IconButton
+                title="Chia sẻ ID lớp học"
+                className="ml-2 bg-sky-500 hover:bg-sky-600"
+                onClick={() => {
+                  navigator.clipboard.writeText(params.classId);
+                  setSnackBarData(() => ({
+                    content: "Đã sao chép ID lóp học",
+                    severity: "info",
+                    open: true,
+                  }));
+                }}
+              >
+                <ShareOutlined className="text-gray-50 text-base" />
+              </IconButton>
+              <CustomSnackBar
+                content={snackBarData.content}
+                severity={snackBarData.severity}
+                open={snackBarData.open}
+                onCLose={() => {
+                  setSnackBarData((prev) => ({ ...prev, open: false }));
+                }}
+              />
             </div>
-            <div className="flex items-center justify-end">
-              {pages.map((page, index) => {
-                return (
-                  <Link
-                    key={`class-menu-${index}`}
-                    className={`flex items-center ml-3 p-2 duration-300 rounded-lg border-2 border-slate-200 hover:bg-sky-200 hover:border-sky-200 ${
-                      pathname == page.path && "bg-sky-200"
-                    }`}
-                    href={{
-                      pathname: `/k-learning/${searchParams.get("class_id")}/${
-                        page.path
-                      }`,
-                      query: {
-                        class_id: searchParams.get("class_id"),
-                        class_name: searchParams.get("class_name"),
-                      },
-                    }}
-                  >
-                    <span>{page.icon}</span>
-                    <span className="ml-1 text-slate-700 text-sm font-semibold">
-                      {page.label}
-                    </span>
-                  </Link>
-                );
-              })}
-            </div>
+            <LessonHeader
+              classId={params.classId}
+              currentPage={currentPage}
+              userRole={classData.ownerId == user._id ? "admin" : "member"}
+              userId={user._id}
+            />
           </header>
-          <div className="border-t-2 border-sky-200 mt-2 flex-1 flex flex-col class-layout">
+          <div className="border-2 border-sky-200 rounded-l-md flex-1 flex flex-col class-layout">
             {children}
           </div>
         </div>

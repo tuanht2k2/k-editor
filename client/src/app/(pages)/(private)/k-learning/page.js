@@ -1,26 +1,32 @@
 "use client";
 
-import CustomSnackBar from "@/app/components/CustomSnackBar";
-import YourClasses from "@/app/components/KLearning/YourClasses";
-import { instance } from "@/app/utils/axios";
-import getApiConfig from "@/app/utils/getApiConfig";
+import { useEffect, useState } from "react";
+import { useSelector } from "react-redux";
+
 import {
   AbcOutlined,
-  AutoModeOutlined,
-  GroupAddOutlined,
   InputOutlined,
-  PasswordOutlined,
   PinOutlined,
   SchoolOutlined,
 } from "@mui/icons-material";
-import { Button, IconButton, InputAdornment, TextField } from "@mui/material";
-import { useState } from "react";
-import { useSelector } from "react-redux";
+
+import {
+  Button,
+  CircularProgress,
+  InputAdornment,
+  TextField,
+} from "@mui/material";
+
+import CustomSnackBar from "@/app/components/CustomSnackBar";
+import YourClasses from "@/app/components/KLearning/YourClasses";
+
+import { instance } from "@/app/utils/axios";
+import getApiConfig from "@/app/utils/getApiConfig";
+import CustomCircularProgress from "@/app/components/CustomCircularProgress";
+import JoinedClasses from "@/app/components/KLearning/JoinedClasses";
 
 function KLearning() {
   const user = useSelector((state) => state.user);
-
-  const [isClassCtrlVisible, setIsClassCtrVisible] = useState(false);
 
   const [accessClassFormData, setAccessClassFormData] = useState({
     idValue: "",
@@ -33,15 +39,22 @@ function KLearning() {
     isBtnSpinning: false,
   });
 
+  const [classes, setClasses] = useState("loading");
+
   // create class
   const handleCreateClass = () => {
     if (Object.keys(user).length == 0) return;
 
     setCreateClassFormData((prev) => ({ ...prev, isBtnSpinning: true }));
-    const api = `classes/create/user=${user._id}/classname=${createClassFormData.classnameValue}`;
-    const data = { rawPassword: createClassFormData.passwordValue };
+    const api = `classes/create`;
+
+    const newClass = {
+      classname: createClassFormData.classnameValue,
+      ownerId: user._id,
+    };
+
     instance
-      .post(api, data, getApiConfig())
+      .post(api, newClass, getApiConfig())
       .then(() => {
         setCreateClassFormData({
           isBtnSpinning: false,
@@ -54,6 +67,9 @@ function KLearning() {
           open: true,
         });
       })
+      .then(() => {
+        handleGetYourClasses();
+      })
       .catch(() => {
         setSnackBarData({
           content: "Lớp học đã tồn tại!",
@@ -64,12 +80,58 @@ function KLearning() {
       });
   };
 
+  const handleJoinClass = () => {
+    setAccessClassFormData((prev) => ({ ...prev, isBtnSpinning: true }));
+
+    const api = `classes/join`;
+    const data = {
+      classId: accessClassFormData.idValue,
+      userId: user._id,
+      status: "JOIN",
+    };
+    instance
+      .post(api, data, getApiConfig())
+      .then(() => {
+        setAccessClassFormData((prev) => ({ ...prev, idValue: "" }));
+        setSnackBarData({
+          content: "Yêu cầu tham gia lớp học thành công",
+          severity: "success",
+          open: true,
+        });
+      })
+      .catch(() => {
+        setSnackBarData({
+          content: "Đã xảy ra lỗi",
+          severity: "error",
+          open: true,
+        });
+      })
+      .finally(() => {
+        setAccessClassFormData((prev) => ({ ...prev, isBtnSpinning: false }));
+      });
+  };
+
+  const handleGetYourClasses = () => {
+    const api = `classes/user=${user._id}/all-classes`;
+    instance
+      .get(api, getApiConfig())
+      .then((res) => {
+        setClasses(res.data);
+      })
+      .catch(() => {});
+  };
+
   // snackbar
   const [snackBarData, setSnackBarData] = useState({
     content: "",
     open: false,
     severity: "",
   });
+
+  useEffect(() => {
+    if (Object.keys(user).length == 0) return;
+    handleGetYourClasses();
+  }, []);
 
   return (
     <div className="p-5 w-full min-h-[calc(100vh-100px)] border-2 border-sky-300 rounded-xl">
@@ -82,24 +144,11 @@ function KLearning() {
         }}
       />
       <header className="pb-3 flex justify-between items-center border-b-2 border-slate-200">
-        <div className="font-semibold text-xl border-b-2 border-sky-500 rounded-lg flex items-center">
+        <div className="font-semibold text-xl rounded-lg flex items-center text-sky-600">
           K-Learning <SchoolOutlined className="text-sky-500 ml-2" />
-        </div>
-        <div
-          className="flex items-center border-2 border-slate-200 rounded-md p-1 cursor-pointer hover:bg-slate-100 duration-300 text-slate-500"
-          onClick={() => {
-            setIsClassCtrVisible((prev) => !prev);
-          }}
-        >
-          <GroupAddOutlined className="text-sky-500 mr-2" />
-          Tham gia hoặc tạo lớp học mới
         </div>
       </header>
       <div className="mt-4">
-        <div className="flex item-center font-semibold text-lg text-slate-700">
-          Tham gia hoặc tạo lớp học mới
-          <GroupAddOutlined className="text-sky-500 ml-2" />
-        </div>
         <div className="grid grid-cols-1 md:grid-cols-2 mt-3 gap-2">
           <div className="border-slate-200 border-2 p-5 rounded-xl md:h-full">
             <h1 className="font-bold text-sm sm:text-lg">
@@ -112,6 +161,7 @@ function KLearning() {
                 <TextField
                   placeholder="Nhập ID lớp học..."
                   value={accessClassFormData.idValue}
+                  error={!accessClassFormData.idValue.trim()}
                   onChange={(e) => {
                     setAccessClassFormData((prev) => ({
                       ...prev,
@@ -121,23 +171,28 @@ function KLearning() {
                   InputProps={{
                     startAdornment: (
                       <InputAdornment position="start">
-                        <PinOutlined />
+                        <PinOutlined className="text-sky-500" />
                       </InputAdornment>
                     ),
                   }}
                   onKeyDown={(e) => {
-                    // e.key == "Enter" && handleAccessFile();
+                    if (!accessClassFormData.idValue.trim()) return;
+                    e.key == "Enter" && handleJoinClass();
                   }}
                 />
                 <div className="flex items-center mt-3">
                   <div className="mr-3">
-                    <Button variant="outlined" style={{ minWidth: "115px" }}>
-                      {/* {accessFileFormData.isBtnSpinning ? (
-                  <AutoModeOutlined className="animate-spin" />
-                ) : (
-                  "Truy cập"
-                )} */}
-                      Truy cập
+                    <Button
+                      variant="outlined"
+                      style={{ minWidth: "115px" }}
+                      disabled={!accessClassFormData.idValue.trim()}
+                      onClick={handleJoinClass}
+                    >
+                      {accessClassFormData.isBtnSpinning ? (
+                        <CircularProgress size={20} />
+                      ) : (
+                        "Tham gia"
+                      )}
                     </Button>
                   </div>
                 </div>
@@ -153,7 +208,7 @@ function KLearning() {
 
             <div className="sm:p-3">
               <span className="font-semibold mt-2 text-sm sm:text-base">
-                Tạo lớp học mới (Mật khẩu là tùy chọn)
+                Tạo lớp học mới
               </span>
               <div className="flex flex-col mt-2">
                 <div className="w-full sm:w-4/6 md:w-5/6 lg:w-4/6">
@@ -182,49 +237,6 @@ function KLearning() {
                     }}
                   />
                 </div>
-                <div className="mt-2 w-full sm:w-4/6 md:w-5/6 lg:w-4/6">
-                  <TextField
-                    fullWidth
-                    placeholder="Nhập mật khẩu lớp học..."
-                    // type={isPasswordVisible ? "text" : "password"}
-                    InputProps={{
-                      startAdornment: (
-                        <InputAdornment position="start">
-                          <PasswordOutlined className="text-sky-500" />
-                        </InputAdornment>
-                      ),
-                      endAdornment: (
-                        <InputAdornment position="end">
-                          <IconButton
-                            aria-label="toggle password visibility"
-                            onClick={() => {
-                              // setIsPasswordVisible((prev) => !prev);
-                            }}
-                            edge="end"
-                          >
-                            {/* {!isPasswordVisible ? (
-                              <VisibilityOff />
-                            ) : (
-                              <Visibility />
-                            )} */}
-                          </IconButton>
-                        </InputAdornment>
-                      ),
-                    }}
-                    value={createClassFormData.passwordValue}
-                    onChange={(e) => {
-                      setCreateClassFormData((prev) => ({
-                        ...prev,
-                        passwordValue: e.target.value,
-                      }));
-                    }}
-                    onKeyDown={(e) => {
-                      e.key == "Enter" &&
-                        createClassFormData.classnameValue.trim() &&
-                        handleCreateClass();
-                    }}
-                  />
-                </div>
                 <div className="flex items-center mt-3">
                   <div className="mr-3">
                     <Button
@@ -238,7 +250,7 @@ function KLearning() {
                       disabled={!createClassFormData.classnameValue.trim()}
                     >
                       {createClassFormData.isBtnSpinning ? (
-                        <AutoModeOutlined className="animate-spin" />
+                        <CircularProgress size={20} className="animate-spin" />
                       ) : (
                         "Tạo mới"
                       )}
@@ -251,7 +263,33 @@ function KLearning() {
           </div>
         </div>
       </div>
-      <YourClasses className={"mt-5"} />
+
+      <div className="mt-5">
+        <div className="font-semibold text-gray-800">
+          Lớp học bạn đã tham gia
+        </div>
+        {classes == "loading" ? (
+          <div className="pt-8 pb-8">
+            <CustomCircularProgress />
+          </div>
+        ) : (
+          <JoinedClasses
+            joinedClasses={classes.joinedClasses}
+            className={"mt-1"}
+          />
+        )}
+      </div>
+
+      <div className="mt-8">
+        <div className="font-semibold text-gray-800">Lớp học bạn sở hữu</div>
+        {classes == "loading" ? (
+          <div className="pt-8 pb-8">
+            <CustomCircularProgress />
+          </div>
+        ) : (
+          <YourClasses yourClasses={classes.yourClasses} className={"mt-1"} />
+        )}
+      </div>
     </div>
   );
 }

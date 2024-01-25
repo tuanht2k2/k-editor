@@ -140,4 +140,8 @@ public class UserService {
         userRepo.save(user);
 
     }
+
+    public UserInfo getMemberInfo (String userId) {
+        return userRepo.findIdUsernameProfileImageById(userId);
+    }
 }

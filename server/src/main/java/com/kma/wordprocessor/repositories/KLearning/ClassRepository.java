@@ -13,4 +13,6 @@ public interface ClassRepository extends MongoRepository<Class, String> {
     List<Class> findByOwnerId(String ownerId);
 
     List<Class> findAllByOwnerId(String ownerId);
+
+    List<Class> findAllByMemberIdsContains(String ownerId);
 }

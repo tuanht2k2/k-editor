@@ -5,7 +5,7 @@ import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 
 import { ChevronLeftOutlined, RefreshOutlined } from "@mui/icons-material";
-import { Button, IconButton } from "@mui/material";
+import { Button, CircularProgress, IconButton } from "@mui/material";
 import useVideoLessonEditor from "@/app/components/KLearning/lessons/useVideoLessonEditor";
 import { instance } from "@/app/utils/axios";
 import getApiConfig from "@/app/utils/getApiConfig";
@@ -33,7 +33,7 @@ function CreateVideoLesson({ params }) {
   const handleCreateLesson = () => {
     setIsSubmitBtnSpinning(true);
 
-    const api = `/classes/${params.classId}/create-lesson&type=video`;
+    const api = `/classes/${params.classId}/create-video-lesson`;
 
     const lesson = {
       ownerId: user._id,
@@ -100,7 +100,7 @@ function CreateVideoLesson({ params }) {
           onClick={handleCreateLesson}
         >
           {isSubmitBtnSpinning ? (
-            <RefreshOutlined className="animate-spin" />
+            <CircularProgress size={20} className="animate-spin" />
           ) : (
             "Tạo mới"
           )}

@@ -1,5 +1,4 @@
-import { RefreshOutlined } from "@mui/icons-material";
-import { Button, TextField } from "@mui/material";
+import { Button, CircularProgress, TextField } from "@mui/material";
 import { Fragment } from "react";
 
 function SingleCreateForm({
@@ -37,7 +36,10 @@ function SingleCreateForm({
               onClick={handleSubmit}
             >
               {isBtnSpinning ? (
-                <RefreshOutlined className="text-sky-500 animate-spin" />
+                <CircularProgress
+                  size={20}
+                  className="text-sky-500 animate-spin"
+                />
               ) : (
                 "Tạo mới"
               )}

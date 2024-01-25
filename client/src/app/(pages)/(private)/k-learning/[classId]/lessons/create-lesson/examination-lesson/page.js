@@ -1,17 +1,18 @@
 "use client";
 
 import { useState } from "react";
+import { useSelector } from "react-redux";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 
-import { ChevronLeftOutlined, RefreshOutlined } from "@mui/icons-material";
-import { Button, IconButton } from "@mui/material";
-import useVideoLessonEditor from "@/app/components/KLearning/lessons/useVideoLessonEditor";
+import { ChevronLeftOutlined } from "@mui/icons-material";
+import { Button, CircularProgress, IconButton } from "@mui/material";
+
+import CustomSnackBar from "@/app/components/CustomSnackBar";
+import useExaminationLessonEditor from "@/app/components/KLearning/lessons/useExaminationLessonEditor";
+
 import { instance } from "@/app/utils/axios";
 import getApiConfig from "@/app/utils/getApiConfig";
-import CustomSnackBar from "@/app/components/CustomSnackBar";
-import { useSelector } from "react-redux";
-import useExaminationLessonEditor from "@/app/components/KLearning/lessons/useExaminationLessonEditor";
 
 function CreateExaminationLesson({ params }) {
   const user = useSelector((state) => state.user);
@@ -33,20 +34,32 @@ function CreateExaminationLesson({ params }) {
 
   // api
   const handleCreateLesson = () => {
+    if (!searchParams.get("chapter_id")) {
+      setSnackBarData(() => ({
+        content: "Đã xảy ra lỗi",
+        severity: "error",
+        open: true,
+      }));
+      return;
+    }
+
     setIsSubmitBtnSpinning(true);
 
-    const api = `/classes/${params.classId}/create-lesson&type=video`;
+    const api = `/classes/${params.classId}/examination-lesson-editor`;
 
-    const lesson = {
-      ownerId: user._id,
-      classId: params.classId,
-      chapterId: searchParams.get("chapter_id"),
-      name: videoLessonData.name,
-      type: "examination",
+    const examData = {
+      lesson: {
+        ...examinationLessonData.lesson,
+        ownerId: user._id,
+        classId: params.classId,
+        chapterId: searchParams.get("chapter_id"),
+        type: "examination",
+      },
+      questions: examinationLessonData.questions,
     };
 
     instance
-      .post(api, lesson, getApiConfig())
+      .post(api, examData, getApiConfig())
       .then(() => {
         setSnackBarData(() => ({
           content: "Tạo bài thi thành công",
@@ -77,7 +90,7 @@ function CreateExaminationLesson({ params }) {
         }}
       />
 
-      <div className="sticky top-0 left-0 bg-slate-100 z-50 p-2 flex items-center justify-between border-b-2 border-b-slate-200">
+      <div className="sticky top-0 left-0 bg-gray-100 z-50 p-2 flex items-center justify-between border-b-2 border-b-slate-200">
         <div className="flex items-center">
           <Link href={`/k-learning/${params.classId}/lessons`}>
             <IconButton>
@@ -94,11 +107,11 @@ function CreateExaminationLesson({ params }) {
         <Button
           variant="outlined"
           style={{ minWidth: "115px" }}
-          disabled={false}
+          disabled={!examinationLessonData.lesson.name.trim()}
           onClick={handleCreateLesson}
         >
           {isSubmitBtnSpinning ? (
-            <RefreshOutlined className="animate-spin" />
+            <CircularProgress size={20} color="info" />
           ) : (
             "Tạo mới"
           )}

@@ -16,12 +16,13 @@ import ListItemText from "@mui/material/ListItemText";
 import {
   AddOutlined,
   AnnouncementOutlined,
-  BookmarkOutlined,
   ExpandLess,
   ExpandMore,
-  MenuOutlined,
   OpenInFullOutlined,
+  PlayCircleFilledOutlined,
+  PlayCircleOutline,
   PlayLessonOutlined,
+  QuestionMarkOutlined,
   QuizOutlined,
   RefreshOutlined,
 } from "@mui/icons-material";
@@ -48,7 +49,8 @@ const DrawerHeader = styled("div")(({ theme }) => ({
 function LessonSidebar({ classData, handleReloadChapters }) {
   const user = useSelector((state) => state.user);
 
-  const currentLesson = usePathname().split("/").pop();
+  const splitPath = usePathname().split("/");
+  const currentLesson = splitPath[splitPath.length - 2];
 
   // ui
   const [drawerOpen, setDrawerOpen] = useState(true);
@@ -159,29 +161,33 @@ function LessonSidebar({ classData, handleReloadChapters }) {
             drawerOpen ? "visible" : "hidden"
           }`}
         >
-          <DrawerHeader className="pl-4 justify-between bg-sky-800">
-            <span className="text-white font-semibold mr-2">Bài giảng</span>
-            <div className="flex items-center">
-              {classData.ownerId == user._id && (
-                <IconButton
-                  title="Tạo chương học mới"
-                  onClick={() => {
-                    setCreateChapterFormData((prev) => ({
-                      ...prev,
-                      open: true,
-                    }));
-                  }}
-                  className="ml-2"
-                >
-                  <AddOutlined className="text-white" />
+          <DrawerHeader className="bg-gray-800">
+            <div className="w-full pl-3 flex justify-between items-center">
+              <span className="text-gray-200 font-semibold mr-2">
+                Bài giảng
+              </span>
+              <div className="flex items-center">
+                {classData.ownerId == user._id && (
+                  <IconButton
+                    title="Tạo chương học mới"
+                    onClick={() => {
+                      setCreateChapterFormData((prev) => ({
+                        ...prev,
+                        open: true,
+                      }));
+                    }}
+                    className="ml-2"
+                  >
+                    <AddOutlined className="text-white" />
+                  </IconButton>
+                )}
+                <IconButton title="Làm mới" onClick={handleReloadChapters}>
+                  <RefreshOutlined className="text-white" />
                 </IconButton>
-              )}
-              <IconButton title="Làm mới" onClick={handleReloadChapters}>
-                <RefreshOutlined className="text-white" />
-              </IconButton>
-              <IconButton title="Đóng" onClick={handleDrawerClose}>
-                <ChevronRightIcon className="text-white" />
-              </IconButton>
+                <IconButton title="Đóng" onClick={handleDrawerClose}>
+                  <ChevronRightIcon className="text-white" />
+                </IconButton>
+              </div>
             </div>
           </DrawerHeader>
 
@@ -198,20 +204,20 @@ function LessonSidebar({ classData, handleReloadChapters }) {
                   >
                     {/* render chapter */}
                     <ListItemButton
-                      className={`w-full flex justify-between items-center pt-0 pb-0 hover:bg-sky-200 ${
-                        chaptersOpen.indexOf(index) >= 0 && "bg-sky-200"
+                      className={`w-full flex justify-between items-center pt-0 pb-0 hover:bg-gray-300 ${
+                        chaptersOpen.indexOf(index) >= 0 && "bg-gray-300"
                       }`}
                       sx={{
                         border: "1px solid #f6f6f6",
                       }}
                     >
                       <div className="flex justify-start items-center flex-1 ">
-                        <BookmarkOutlined className="mr-2 text-sky-600" />
+                        {/* <BookmarkOutlined className="mr-2 text-sky-600" /> */}
                         <ListItemText
                           style={{ maxWidth: "155px" }}
                           className="truncate"
                           primary={
-                            <span className="text-sky-700 truncate">{`${
+                            <span className="text-sky-900 font-medium truncate">{`${
                               index + 1
                             }. ${chapter.name}`}</span>
                           }
@@ -272,43 +278,52 @@ function LessonSidebar({ classData, handleReloadChapters }) {
                               <ListItem
                                 key={`lesson-${lesson._id}`}
                                 sx={{ p: 0 }}
-                                className={`${
-                                  lesson._id == currentLesson && "bg-slate-200"
+                                className={`duration-300 ${
+                                  lesson._id == currentLesson
+                                    ? "bg-sky-950 hover:bg-sky-950"
+                                    : "hover:bg-gray-200"
                                 }`}
                               >
                                 <Link
                                   href={{
-                                    pathname: `/k-learning/${chapter.classId}/lessons/${lesson._id}`,
+                                    pathname: `/k-learning/${
+                                      chapter.classId
+                                    }/lessons/${lesson._id}/${
+                                      lesson.type == "video"
+                                        ? "video"
+                                        : "examination"
+                                    }`,
                                     query: {
                                       chapter_name: chapter.name,
                                     },
                                   }}
                                   className="w-full border-t-2 border-slate-100"
                                 >
-                                  <ListItemButton className="pl-6">
+                                  <ListItemButton className="pl-7">
                                     {lesson.type == "video" ? (
-                                      <PlayLessonOutlined
+                                      <PlayCircleOutline
                                         className={`mr-2 ${
                                           lesson._id == currentLesson
-                                            ? "animate-bounce text-orange-700"
-                                            : "text-sky-300"
+                                            ? "animate-bounce text-orange-500"
+                                            : "text-gray-400"
                                         }`}
                                       />
                                     ) : (
-                                      <QuizOutlined
-                                        className={`mr-2 text-sky-300 ${
-                                          lesson._id == currentLesson &&
-                                          "animate-bounce text-orange-700"
+                                      <QuestionMarkOutlined
+                                        className={`mr-2  ${
+                                          lesson._id == currentLesson
+                                            ? "animate-bounce text-orange-500"
+                                            : "text-gray-400"
                                         }`}
                                       />
                                     )}
                                     <ListItemText
                                       primary={
                                         <span
-                                          className={`font-semibold text-sm ${
+                                          className={`text-sm ${
                                             lesson._id == currentLesson
-                                              ? "animate-bounce text-orange-700"
-                                              : "text-sky-800"
+                                              ? "animate-bounce text-orange-500 font-semibold"
+                                              : "text-gray-800"
                                           }`}
                                         >{`${index + 1}. ${lesson.name}`}</span>
                                       }
@@ -357,10 +372,9 @@ function LessonSidebar({ classData, handleReloadChapters }) {
           />
         </Drawer>
       ) : (
-        <div className="fixed bottom-4 right-5 bg-sky-700 rounded-full">
+        <div className="fixed bottom-4 right-5 bg-sky-700 rounded-full shadow-md shadow-gray-500">
           <IconButton
             title="Mở rộng menu"
-            // className="fixed top-0 right-0"
             onClick={() => {
               setDrawerOpen(true);
             }}

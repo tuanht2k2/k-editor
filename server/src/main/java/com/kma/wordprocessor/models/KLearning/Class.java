@@ -7,6 +7,7 @@ import lombok.Setter;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.MongoId;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -23,20 +24,17 @@ public class Class {
 
     private String ownerId;
 
-    private String password;
-
     private Date createdAt;
 
-    private List<String> memberIds;
+    private List<String> memberIds = new ArrayList<String>();
 
-    private List<Chapter> chapterList;
+    private List<String> requests = new ArrayList<String>();
 
-    public Class(String classname, String ownerId, String password, Date createdAt, List<String> memberIds, List<Chapter> chapterList) {
+    private List<Chapter> chapterList = new ArrayList<Chapter>();
+
+    public Class(String classname, String ownerId, Date createdAt) {
         this.classname = classname;
         this.ownerId = ownerId;
-        this.password = password;
         this.createdAt = createdAt;
-        this.memberIds = memberIds;
-        this.chapterList = chapterList;
     }
 }

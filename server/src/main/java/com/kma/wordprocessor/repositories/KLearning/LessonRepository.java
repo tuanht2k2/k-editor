@@ -9,4 +9,8 @@ import java.util.List;
 @Repository
 public interface LessonRepository extends MongoRepository<Lesson, String> {
     List<Lesson> findByChapterId(String chapterId);
+
+    List<Lesson> findAllByClassIdAndType(String classId, String examination);
+
+    void deleteAllByChapterId(String chapterId);
 }
