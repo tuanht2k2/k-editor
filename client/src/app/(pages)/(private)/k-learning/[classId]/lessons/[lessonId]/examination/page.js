@@ -291,7 +291,7 @@ function ExaminationLesson({ params }) {
                       setExamStatus("view");
                     } else {
                       setExamStatus("started");
-                      setTimeLeft(examData.lesson.timeInMinutes);
+                      // setTimeLeft(examData.lesson.timeInMinutes);
                     }
                   }}
                 >
