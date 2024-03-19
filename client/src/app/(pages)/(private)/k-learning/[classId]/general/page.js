@@ -44,7 +44,9 @@ function General({ params }) {
     handleGetMessages();
 
     // const socket = new SockJS("http://localhost:8080/ws");
-    const socket = new SockJS("https://k-editor-service.onrender.com/ws");
+    const socket = new SockJS(
+      "https://k-office-backend-production.up.railway.app/ws"
+    );
 
     const client = over(socket);
     client.connect(

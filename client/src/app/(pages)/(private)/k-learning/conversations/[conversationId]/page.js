@@ -91,7 +91,9 @@ function Test() {
   };
 
   useEffect(() => {
-    const socket = new SockJS("http://localhost:8080/ws");
+    const socket = new SockJS(
+      "https://k-office-backend-production.up.railway.app/ws"
+    );
     const client = over(socket);
     client.connect({}, () => {
       client.subscribe(`/conversations/123/users`, (res) => {

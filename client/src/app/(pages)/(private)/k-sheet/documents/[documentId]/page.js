@@ -92,7 +92,7 @@ function SheetEditor() {
     if (!sheet || !spreadsheetRef.current) return;
 
     const socket = new SockJS(
-      "https://k-editor-service.onrender.com/ws",
+      "https://k-office-backend-production.up.railway.app/ws",
       // "http://localhost:8080/ws",
       getApiConfig()
     );

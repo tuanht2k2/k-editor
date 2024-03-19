@@ -84,8 +84,8 @@ function WordEditor() {
     if (!file) return;
     const config = getApiConfig();
     const socket = new SockJS(
-      "https://k-editor-service.onrender.com/ws",
-      // "http://localhost:8080/ws",
+      // "https://k-editor-service.onrender.com/ws",
+      "http://localhost:8080/ws",
       config
     );
     const client = over(socket);

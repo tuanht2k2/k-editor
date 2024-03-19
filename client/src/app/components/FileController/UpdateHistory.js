@@ -59,7 +59,7 @@ function UpdateHistory({ file }) {
     if (!file) return;
     const socket = new SockJS(
       // "http://localhost:8080/ws",
-      "https://k-editor-service.onrender.com/ws",
+      "https://k-office-backend-production.up.railway.app/ws",
       getApiConfig()
     );
     const client = over(socket);
